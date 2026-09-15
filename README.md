@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/arkagupta/dashforge/main/assets/logo.svg" alt="dashforge" width="440">
+  <img src="https://raw.githubusercontent.com/arkajojo/dashforge/main/assets/logo.svg" alt="dashforge" width="440">
 </p>
 
 <h3 align="center">Generate world-class Power BI dashboards from any data source — automatically.</h3>
@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://pypi.org/project/dashforge/"><img alt="PyPI" src="https://img.shields.io/pypi/v/dashforge.svg?color=4C6FFF"></a>
   <a href="https://pypi.org/project/dashforge/"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/dashforge.svg?color=22C1C3"></a>
-  <a href="https://github.com/arkagupta/dashforge/actions"><img alt="CI" src="https://github.com/arkagupta/dashforge/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/arkajojo/dashforge/actions"><img alt="CI" src="https://github.com/arkajojo/dashforge/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1B1F3B.svg"></a>
   <img alt="Status" src="https://img.shields.io/badge/status-beta-FDBB2D.svg">
 </p>

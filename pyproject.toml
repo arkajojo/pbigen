@@ -55,10 +55,10 @@ all = [
 dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "build>=1.2", "twine>=5.0"]
 
 [project.urls]
-Homepage = "https://github.com/arkagupta/dashforge"
-Repository = "https://github.com/arkagupta/dashforge"
-Issues = "https://github.com/arkagupta/dashforge/issues"
-Changelog = "https://github.com/arkagupta/dashforge/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/arkajojo/dashforge"
+Repository = "https://github.com/arkajojo/dashforge"
+Issues = "https://github.com/arkajojo/dashforge/issues"
+Changelog = "https://github.com/arkajojo/dashforge/blob/main/CHANGELOG.md"
 
 [project.scripts]
 dashforge = "dashforge.cli:main"

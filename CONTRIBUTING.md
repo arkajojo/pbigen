@@ -7,7 +7,7 @@ welcome.
 ## Getting set up
 
 ```bash
-git clone https://github.com/arkagupta/dashforge
+git clone https://github.com/arkajojo/dashforge
 cd dashforge
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev,lakehouse,sqlalchemy]"
