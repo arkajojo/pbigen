@@ -50,6 +50,7 @@ def _cmd_generate(args: argparse.Namespace) -> int:
         objective=args.objective or "",
         model=args.model,
         theme=args.theme,
+        mode=args.mode,
         source_config=cfg,
     )
     print(f"Generated {result.n_pages} pages from {result.table} "
@@ -91,6 +92,8 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--objective", help="what the dashboard should answer")
     g.add_argument("--model", help="LiteLLM model id (omit for the deterministic design)")
     g.add_argument("--theme", help="built-in theme name or path to a Power BI theme JSON")
+    g.add_argument("--mode", choices=["import", "directquery"], default="import",
+                   help="storage mode: import (default, loads a copy) or directquery (live queries)")
     g.add_argument("--out", default="out", help="output directory (default: out)")
     g.add_argument("--name", help="project name (default: derived from the table)")
     g.set_defaults(func=_cmd_generate)

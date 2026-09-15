@@ -70,7 +70,14 @@ def model_tmdl() -> str:
     )
 
 
-def table_tmdl(schema: Schema, measures: Iterable[Measure], power_query: str) -> str:
+def normalize_mode(mode: str | None) -> str:
+    """Map a user storage-mode choice to the TMDL partition mode."""
+    m = (mode or "import").lower().replace("-", "").replace("_", "").replace(" ", "")
+    return "directQuery" if m in ("directquery", "dq", "direct") else "import"
+
+
+def table_tmdl(schema: Schema, measures: Iterable[Measure], power_query: str,
+               mode: str = "import") -> str:
     table = schema.table
     lines: list[str] = [f"table '{table}'", ""]
 
@@ -90,7 +97,7 @@ def table_tmdl(schema: Schema, measures: Iterable[Measure], power_query: str) ->
         lines.append("")
 
     lines.append(f"\tpartition '{table}' = m")
-    lines.append("\t\tmode: import")
+    lines.append(f"\t\tmode: {normalize_mode(mode)}")
     lines.append("\t\tsource =")
     lines.append(_indent(power_query, 3))
     lines.append("")

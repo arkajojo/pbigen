@@ -56,14 +56,14 @@ def _write_text(path: str, text: str) -> None:
 def write_project(design: Design, schema: Schema, power_query: str, out_dir: str,
                   name: str, theme: dict | None = None,
                   sidebar_color: str = "#1B1F3B", accent: str = "#FFFFFF",
-                  brand: str | None = None) -> str:
+                  brand: str | None = None, mode: str = "import") -> str:
     """Write the project under ``out_dir/<name>`` and return the ``.pbip`` path."""
     root = os.path.join(out_dir, name)
     report_dir = os.path.join(root, f"{name}.Report")
     model_dir = os.path.join(root, f"{name}.SemanticModel")
     defn = os.path.join(report_dir, "definition")
 
-    _write_semantic_model(model_dir, schema, design, power_query)
+    _write_semantic_model(model_dir, schema, design, power_query, mode)
     theme_file = _write_theme(defn, theme)
     _write_report_shell(report_dir, defn, theme_file)
     _write_pages(defn, design, schema, brand or schema.display_name, sidebar_color, accent)
@@ -121,13 +121,14 @@ def _write_theme(defn: str, theme: dict | None) -> str | None:
 
 
 # --------------------------------------------------------------------------- semantic model
-def _write_semantic_model(model_dir: str, schema: Schema, design: Design, power_query: str) -> None:
+def _write_semantic_model(model_dir: str, schema: Schema, design: Design, power_query: str,
+                          mode: str = "import") -> None:
     defn = os.path.join(model_dir, "definition")
     _write_json(os.path.join(model_dir, "definition.pbism"), json.loads(tmdl.pbism()))
     _write_text(os.path.join(defn, "database.tmdl"), tmdl.database_tmdl())
     _write_text(os.path.join(defn, "model.tmdl"), tmdl.model_tmdl())
     _write_text(os.path.join(defn, "tables", f"{schema.table}.tmdl"),
-                tmdl.table_tmdl(schema, design.measures, power_query))
+                tmdl.table_tmdl(schema, design.measures, power_query, mode))
 
 
 # --------------------------------------------------------------------------- pages + visuals

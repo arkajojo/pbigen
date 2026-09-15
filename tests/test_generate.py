@@ -73,3 +73,12 @@ def test_generate_with_custom_theme_file(orders_parquet, tmp_path):
     assert tc["baseTheme"]["name"]                    # a base theme is present
     reg_pkg = next(p for p in report["resourcePackages"] if p["type"] == "RegisteredResources")
     assert reg_pkg["items"][0]["path"] == theme_file
+
+
+def test_generate_directquery_sets_partition_mode(orders_parquet, tmp_path):
+    pytest.importorskip("duckdb")
+    pbigen.generate("parquet", source_config={"uri": orders_parquet},
+                    mode="directquery", out_dir=str(tmp_path), name="DQ")
+    tables = (tmp_path / "DQ" / "DQ.SemanticModel" / "definition" / "tables")
+    tmdl = next(tables.glob("*.tmdl")).read_text()
+    assert "mode: directQuery" in tmdl                  # default is import; here we asked for DQ

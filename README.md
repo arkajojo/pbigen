@@ -388,7 +388,7 @@ Helpers: `pbigen.available_kinds()`, `pbigen.available_themes()`, `pbigen.get_so
 
 ```bash
 pbigen generate --source <kind> [--set k=v ...] [--objective ...] \
-                   [--model ...] [--theme ...] [--out DIR] [--name NAME]
+                   [--model ...] [--theme ...] [--mode import|directquery] [--out DIR] [--name NAME]
 pbigen test     --source <kind> [--set k=v ...]      # verify connectivity + introspection
 pbigen sources                                       # list available source kinds
 pbigen themes                                        # list built-in themes

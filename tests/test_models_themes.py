@@ -50,6 +50,20 @@ def test_slicer_carries_mode_and_header():
     assert obj["visual"]["objects"]["data"][0]["properties"]["mode"]["expr"]["Literal"]["Value"] == "'Dropdown'"
 
 
+def test_container_title_shown_on_charts_hidden_on_textbox():
+    from pbigen.emit.visuals import build_textbox, text_run
+
+    chart = build_visual(Visual("bar", "Revenue by region", measures=["Revenue"], category="region"),
+                         "t", "p0-v00", 3)
+    title = chart["visual"]["visualContainerObjects"]["title"][0]["properties"]
+    assert title["show"]["expr"]["Literal"]["Value"] == "true"          # chart shows a themed title
+    assert title["text"]["expr"]["Literal"]["Value"] == "'Revenue by region'"
+
+    tb = build_textbox("p0-title", [text_run("Executive Summary")], 0, 0, 100, 40, 1, 4)
+    tb_title = tb["visual"]["visualContainerObjects"]["title"][0]["properties"]
+    assert tb_title["show"]["expr"]["Literal"]["Value"] == "false"      # no empty white header on chrome
+
+
 def test_unknown_theme_raises():
     with pytest.raises(ValueError):
         get_theme("no-such-theme")

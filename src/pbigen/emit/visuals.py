@@ -92,11 +92,15 @@ def _query_state(v: Visual, table: str) -> dict:
     return state
 
 
-def _title_objects(title: str) -> dict:
-    return {"title": [{"properties": {
-        "show": _lit(True),
-        "text": _lit(title),
-    }}]}
+# The stylable visual-container header (enabled in report.json) shows a title bar. Charts want a
+# themed title there; chrome (textboxes, shapes, cards, slicers) must hide it, or an empty white
+# header renders on top of them.
+def _container_title(title: str) -> dict:
+    return {"title": [{"properties": {"show": _lit(True), "text": _lit(title)}}]}
+
+
+def _container_no_title() -> dict:
+    return {"title": [{"properties": {"show": _lit(False)}}]}
 
 
 def build_visual(v: Visual, table: str, name: str, tab_order: int) -> dict:
@@ -104,11 +108,13 @@ def build_visual(v: Visual, table: str, name: str, tab_order: int) -> dict:
     obj: dict[str, Any] = {}
 
     if v.type == "slicer":
-        data_props: dict[str, Any] = {"mode": _lit(v.slicer_mode)}
-        obj["data"] = [{"properties": data_props}]
+        obj["data"] = [{"properties": {"mode": _lit(v.slicer_mode)}}]
         obj["header"] = [{"properties": {"show": _lit(True), "text": _lit(v.title or v.category or "")}}]
-    elif v.title and v.type not in ("card", "kpi"):
-        obj.update(_title_objects(v.title))
+        vco = _container_no_title()
+    elif v.type in ("card", "kpi") or not v.title:
+        vco = _container_no_title()
+    else:
+        vco = _container_title(v.title)     # the theme's `title` style colours this (dark)
 
     visual: dict[str, Any] = {"visualType": visual_type, "drillFilterOtherVisuals": True}
     qs = _query_state(v, table)
@@ -116,6 +122,7 @@ def build_visual(v: Visual, table: str, name: str, tab_order: int) -> dict:
         visual["query"] = {"queryState": qs}
     if obj:
         visual["objects"] = obj
+    visual["visualContainerObjects"] = vco
 
     return {
         "$schema": VISUAL_SCHEMA,
@@ -143,7 +150,8 @@ def build_textbox(name: str, runs: list[dict], x: int, y: int, w: int, h: int,
         "name": name,
         "position": {"x": float(x), "y": float(y), "z": float(z),
                      "width": float(w), "height": float(h), "tabOrder": tab_order},
-        "visual": {"visualType": "textbox", "drillFilterOtherVisuals": True, "objects": objects},
+        "visual": {"visualType": "textbox", "drillFilterOtherVisuals": True,
+                   "objects": objects, "visualContainerObjects": _container_no_title()},
     }
 
 
@@ -160,7 +168,8 @@ def build_shape(name: str, x: int, y: int, w: int, h: int, z: int, tab_order: in
         "name": name,
         "position": {"x": float(x), "y": float(y), "z": float(z),
                      "width": float(w), "height": float(h), "tabOrder": tab_order},
-        "visual": {"visualType": "shape", "drillFilterOtherVisuals": False, "objects": objects},
+        "visual": {"visualType": "shape", "drillFilterOtherVisuals": False,
+                   "objects": objects, "visualContainerObjects": _container_no_title()},
     }
 
 

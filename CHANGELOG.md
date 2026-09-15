@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.1.3]
+
+### Fixed
+
+- **White-on-white visual title header.** With the stylable visual-container header enabled, the
+  chart title is now written to `visualContainerObjects.title` (which the theme colours), and chrome
+  visuals (textboxes, the sidebar shape, cards, slicers) explicitly hide that header — so no blank
+  white title bar renders over them.
+
+### Added
+
+- **Row sampling** for BigQuery: pass `row_limit=<N>` (e.g. `--set … row_limit=50000`) to build and
+  refresh against a `Table.FirstN` sample instead of a huge table — fast iteration on big sources.
+- **Import vs DirectQuery** storage mode: `--mode import` (default, loads a copy) or
+  `--mode directquery` (live queries), threaded into the TMDL partition mode. Python:
+  `pbigen.generate(..., mode="directquery")`.
+
 ## [0.1.2]
 
 ### Fixed

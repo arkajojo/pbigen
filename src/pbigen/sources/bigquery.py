@@ -38,12 +38,14 @@ class BigQuerySource(Source):
     kind = "bigquery"
 
     def __init__(self, table: str, dataset: str, project: str,
-                 billing_project: str | None = None, location: str | None = None):
+                 billing_project: str | None = None, location: str | None = None,
+                 row_limit: int | None = None):
         self.table = table
         self.dataset = dataset
         self.project = project
         self.billing_project = billing_project or os.environ.get("BQ_BILLING_PROJECT") or project
         self.location = location
+        self.row_limit = int(row_limit) if row_limit else None
         self._client = None
 
     def _get_client(self):
@@ -80,5 +82,5 @@ class BigQuerySource(Source):
             f'  Project = Source{{[Name="{self.project}"]}}[Data],\n'
             f'  Dataset = Project{{[Name="{self.dataset}", Kind="Schema"]}}[Data],\n'
             f'  Data = Dataset{{[Name="{self.table}", Kind="Table"]}}[Data]\n'
-            "in Data"
+            + (f"in Table.FirstN(Data, {self.row_limit})" if self.row_limit else "in Data")
         )

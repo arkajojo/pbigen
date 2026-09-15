@@ -26,6 +26,11 @@ pbigen generate --source <kind> --set <key=value ...> \  # 4. generate (determin
 - `pbigen test` is the fast, safe first check — it only reads metadata.
 - `pbigen sources` lists every kind; `pbigen themes` lists built-in themes.
 
+**Storage mode.** Add `--mode import` (default — Power BI loads a copy of the data) or
+`--mode directquery` (Power BI queries the source live at view time). DirectQuery keeps data fresh
+and avoids a large import, but needs a source that supports it (warehouses/query engines do; a raw
+lakehouse file does not). Python: `pbigen.generate(..., mode="directquery")`.
+
 ## Canonical types
 
 Native types normalise to: `string`, `integer`, `float`, `decimal`, `boolean`, `date`, `datetime`,
@@ -51,13 +56,21 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
 `roles/bigquery.jobUser` on the billing project (run the cardinality query).
 
 **Configure (`--set`):** `project` `dataset` `table` · optional `billing_project` (env
-`BQ_BILLING_PROJECT`, defaults to `project`), `location`.
+`BQ_BILLING_PROJECT`, defaults to `project`), `location`, `row_limit` (sample the first N rows —
+great for iterating on a huge table).
 
 ```bash
 pbigen test --source bigquery --set project=my-proj dataset=sales table=orders
 pbigen generate --source bigquery --set project=my-proj dataset=sales table=orders \
   --theme midnight --out out
+# huge table? sample it so the build + refresh are fast:
+pbigen generate --source bigquery --set project=my-proj dataset=sales table=orders row_limit=50000 \
+  --theme midnight --out out
 ```
+
+The generated BigQuery query sets `UseStorageApi=false`, so refresh works even on networks that block
+the BigQuery Storage Read API (a common cause of *"Storage API Error: failed to connect to all
+addresses"*).
 
 ---
 
