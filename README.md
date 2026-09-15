@@ -387,8 +387,9 @@ Helpers: `pbigen.available_kinds()`, `pbigen.available_themes()`, `pbigen.get_so
 ## Command-line interface
 
 ```bash
-pbigen generate --source <kind> [--set k=v ...] [--objective ...] \
-                   [--model ...] [--theme ...] [--mode import|directquery] [--out DIR] [--name NAME]
+pbigen generate --source <kind> [--set k=v ...] [--objective ...] [--model ...] [--theme ...] \
+                   [--mode import|directquery] [--nav left|right] [--logo IMG] [--out DIR] [--name NAME]
+pbigen extract-template <file.pbix> [--out DIR]    # reuse a shared report's theme + logo + shell
 pbigen test     --source <kind> [--set k=v ...]      # verify connectivity + introspection
 pbigen sources                                       # list available source kinds
 pbigen themes                                        # list built-in themes

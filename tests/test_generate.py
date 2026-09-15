@@ -75,6 +75,41 @@ def test_generate_with_custom_theme_file(orders_parquet, tmp_path):
     assert reg_pkg["items"][0]["path"] == theme_file
 
 
+def test_generate_right_nav_and_logo(orders_parquet, tmp_path):
+    pytest.importorskip("duckdb")
+    logo = tmp_path / "logo.png"
+    logo.write_bytes(bytes.fromhex("89504e470d0a1a0a"))     # PNG magic — enough for a file copy
+    pbigen.generate("parquet", source_config={"uri": orders_parquet},
+                    theme="midnight", nav="right", logo=str(logo),
+                    out_dir=str(tmp_path), name="Shell")
+    report = tmp_path / "Shell" / "Shell.Report"
+    # sidebar shape sits on the right half of the canvas
+    import glob
+    navs = glob.glob(str(report / "definition" / "pages" / "*" / "visuals" / "*nav*" / "visual.json"))
+    x = json.loads(open(navs[0]).read())["position"]["x"]
+    assert x > 1000, "right nav sidebar should be on the right side of the 1920px canvas"
+    # logo copied + declared as an Image resource
+    assert (report / "StaticResources" / "RegisteredResources" / "logo.png").exists()
+    rep = json.loads((report / "definition" / "report.json").read_text())
+    images = [i for p in rep["resourcePackages"] if p["type"] == "RegisteredResources"
+              for i in p["items"] if i["type"] == "Image"]
+    assert images and images[0]["path"] == "logo.png"
+
+
+def test_extract_template_from_pbix(tmp_path):
+    import json as _json
+    import zipfile
+    pbix = tmp_path / "their.pbix"
+    with zipfile.ZipFile(pbix, "w") as z:
+        z.writestr("Report/StaticResources/RegisteredResources/brand.json",
+                   _json.dumps({"name": "Brand", "dataColors": ["#AA0000"]}))
+        z.writestr("Report/StaticResources/RegisteredResources/logo.png", b"\x89PNG")
+    from pbigen.reference import extract_template
+    r = extract_template(str(pbix), str(tmp_path / "tmpl"))
+    assert r.theme_path and json.loads(open(r.theme_path).read())["name"] == "Brand"
+    assert "logo.png" in r.images
+
+
 def test_generate_directquery_sets_partition_mode(orders_parquet, tmp_path):
     pytest.importorskip("duckdb")
     pbigen.generate("parquet", source_config={"uri": orders_parquet},

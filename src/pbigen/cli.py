@@ -51,6 +51,8 @@ def _cmd_generate(args: argparse.Namespace) -> int:
         model=args.model,
         theme=args.theme,
         mode=args.mode,
+        nav=args.nav,
+        logo=args.logo,
         source_config=cfg,
     )
     print(f"Generated {result.n_pages} pages from {result.table} "
@@ -70,6 +72,25 @@ def _cmd_themes(_: argparse.Namespace) -> int:
     print("Built-in themes (or pass a path to your own Power BI theme JSON):")
     for name in available_themes():
         print(f"  - {name}")
+    return 0
+
+
+def _cmd_extract_template(args: argparse.Namespace) -> int:
+    from .reference import extract_template
+    r = extract_template(args.pbix, args.out)
+    print(f"Extracted design shell from {args.pbix} into {args.out}/")
+    if r.theme_path:
+        print(f"  theme  -> {r.theme_path}   (from {r.theme_source})")
+    else:
+        print("  theme  -> none found (the report likely uses a built-in theme; use --nav/--logo/--canvas)")
+    if r.images:
+        print(f"  images -> {args.out}/assets/: {', '.join(r.images)}")
+    else:
+        print("  images -> none found")
+    logo = f" --logo {args.out}/assets/{r.images[0]}" if r.images else ""
+    theme = f" --theme {r.theme_path}" if r.theme_path else ""
+    print("\nNext, generate your data into the same shell, e.g.:")
+    print(f"  pbigen generate --source <kind> --set <...>{theme}{logo} --nav right --out out")
     return 0
 
 
@@ -94,6 +115,9 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--theme", help="built-in theme name or path to a Power BI theme JSON")
     g.add_argument("--mode", choices=["import", "directquery"], default="import",
                    help="storage mode: import (default, loads a copy) or directquery (live queries)")
+    g.add_argument("--nav", choices=["left", "right"], default="left",
+                   help="navigation sidebar side (default: left)")
+    g.add_argument("--logo", help="path to a logo image (png/jpg) to place in the nav sidebar")
     g.add_argument("--out", default="out", help="output directory (default: out)")
     g.add_argument("--name", help="project name (default: derived from the table)")
     g.set_defaults(func=_cmd_generate)
@@ -102,6 +126,11 @@ def build_parser() -> argparse.ArgumentParser:
     t.add_argument("--source", required=True)
     t.add_argument("--set", nargs="*", default=[])
     t.set_defaults(func=_cmd_test)
+
+    e = sub.add_parser("extract-template", help="extract theme + images from a shared .pbix to reuse its shell")
+    e.add_argument("pbix", help="path to a .pbix file")
+    e.add_argument("--out", default="template", help="output directory (default: template)")
+    e.set_defaults(func=_cmd_extract_template)
 
     sub.add_parser("sources", help="list available source kinds").set_defaults(func=_cmd_sources)
     sub.add_parser("themes", help="list built-in themes").set_defaults(func=_cmd_themes)

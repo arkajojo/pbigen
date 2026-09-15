@@ -41,6 +41,8 @@ def generate(
     model: Model | str | None = None,
     theme: str | None = None,
     mode: str = "import",
+    nav: str = "left",
+    logo: str | None = None,
     source_config: dict | None = None,
     model_config: dict | None = None,
 ) -> GenerateResult:
@@ -69,6 +71,7 @@ def generate(
         design, schema, src.power_query(), out_dir, project,
         theme=theme_doc, sidebar_color=sidebar, accent=accent,
         brand=schema.display_name, mode=mode,
+        nav_side=("right" if str(nav).lower().startswith("r") else "left"), logo=logo,
     )
     return GenerateResult(
         pbip_path=pbip_path, design=design, table=schema.table,

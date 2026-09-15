@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.3.0]
+
+### Added — replicate a report's design shell
+
+- **`--nav left|right`** — put the navigation sidebar on either side (match a "right nav panel").
+- **`--logo <image>`** — drop a logo image into the nav sidebar (copied into the report's registered
+  resources and bound as an image visual).
+- **`pbigen extract-template <file.pbix> --out <dir>`** — pull the reusable design shell out of a
+  shared `.pbix`: its custom **theme** (colours/fonts/visual styles) → `theme.json`, and its
+  **images** (logo/background) → `assets/`. Then regenerate *your* data into that shell:
+  `pbigen generate ... --theme <dir>/theme.json --logo <dir>/assets/<logo> --nav right`.
+  It reuses the look (theme, logo, nav layout) — your charts still follow your data, not theirs.
+  (A report that used only a built-in theme has no custom theme to extract; `--nav`/`--logo` still
+  match the shell.)
+
 ## [0.2.1]
 
 ### Fixed

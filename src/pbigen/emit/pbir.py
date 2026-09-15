@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 
 from ..core.design import Design
 from ..core.layout import (
@@ -23,11 +24,12 @@ from ..core.layout import (
     PAGE_W,
     SIDEBAR_W,
     TITLE_H,
+    nav_x,
     pack,
 )
 from ..core.schema import Schema
 from . import model as tmdl
-from .visuals import build_shape, build_textbox, build_visual, text_run
+from .visuals import build_image, build_shape, build_textbox, build_visual, text_run
 
 _REPORT = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition"
 # a Power BI built-in monthly base theme the custom theme is layered on top of
@@ -59,7 +61,9 @@ def _write_text(path: str, text: str) -> None:
 def write_project(design: Design, schema: Schema, power_query: str, out_dir: str,
                   name: str, theme: dict | None = None,
                   sidebar_color: str = "#1B1F3B", accent: str = "#FFFFFF",
-                  brand: str | None = None, mode: str = "import") -> str:
+                  brand: str | None = None, mode: str = "import",
+                  nav_side: str = "left", logo: str | None = None,
+                  canvas: str = _CANVAS) -> str:
     """Write the project under ``out_dir/<name>`` and return the ``.pbip`` path."""
     root = os.path.join(out_dir, name)
     report_dir = os.path.join(root, f"{name}.Report")
@@ -68,9 +72,11 @@ def write_project(design: Design, schema: Schema, power_query: str, out_dir: str
 
     _write_semantic_model(model_dir, schema, design, power_query, mode)
     theme_file = _write_theme(report_dir, theme)
-    _write_report_shell(report_dir, defn, theme_file)
+    logo_item = _write_logo(report_dir, logo)
+    _write_report_shell(report_dir, defn, theme_file, logo_item)
     data_colors = (theme or {}).get("dataColors") or _DEFAULT_DATA_COLORS
-    _write_pages(defn, design, schema, brand or schema.display_name, sidebar_color, accent, data_colors)
+    _write_pages(defn, design, schema, brand or schema.display_name, sidebar_color, accent,
+                 data_colors, nav_side, logo_item, canvas)
 
     pbip_path = os.path.join(root, f"{name}.pbip")
     _write_json(pbip_path, {
@@ -81,8 +87,21 @@ def write_project(design: Design, schema: Schema, power_query: str, out_dir: str
     return pbip_path
 
 
+def _write_logo(report_dir: str, logo: str | None) -> str | None:
+    """Copy a logo image into RegisteredResources; return its registered file name."""
+    if not logo or not os.path.exists(logo):
+        return None
+    ext = os.path.splitext(logo)[1].lower() or ".png"
+    item = _slug(os.path.splitext(os.path.basename(logo))[0], "logo") + ext
+    dst = os.path.join(report_dir, "StaticResources", "RegisteredResources", item)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    shutil.copyfile(logo, dst)
+    return item
+
+
 # --------------------------------------------------------------------------- report shell
-def _write_report_shell(report_dir: str, defn: str, theme_file: str | None) -> None:
+def _write_report_shell(report_dir: str, defn: str, theme_file: str | None,
+                        logo_item: str | None = None) -> None:
     _write_json(os.path.join(report_dir, "definition.pbir"), {
         "version": "4.0",
         "datasetReference": {"byPath": {"path": f"../{os.path.basename(report_dir)[:-7]}.SemanticModel"}},
@@ -96,7 +115,11 @@ def _write_report_shell(report_dir: str, defn: str, theme_file: str | None) -> N
     report: dict = {
         "$schema": f"{_REPORT}/report/1.3.0/schema.json",
         "layoutOptimization": "None",
+        # keep the stylable header on so per-visual title colours (set below) take effect
+        "settings": {"useStylableVisualContainerHeader": True},
     }
+    packages: list[dict] = []
+    registered: list[dict] = []
     if theme_file:
         # A custom theme is applied on top of a built-in base theme, and both the theme and the base
         # must be declared in resourcePackages — this mirrors what Power BI Desktop itself writes.
@@ -104,13 +127,15 @@ def _write_report_shell(report_dir: str, defn: str, theme_file: str | None) -> N
             "baseTheme": {"name": _BASE_THEME, "reportVersionAtImport": "5.61", "type": "SharedResources"},
             "customTheme": {"name": theme_file, "reportVersionAtImport": "5.61", "type": "RegisteredResources"},
         }
-        report["resourcePackages"] = [
-            {"name": "SharedResources", "type": "SharedResources",
-             "items": [{"name": _BASE_THEME, "path": f"BaseThemes/{_BASE_THEME}.json", "type": "BaseTheme"}]},
-            {"name": "RegisteredResources", "type": "RegisteredResources",
-             "items": [{"name": theme_file, "path": theme_file, "type": "CustomTheme"}]},
-        ]
-        report["settings"] = {"useStylableVisualContainerHeader": True}
+        packages.append({"name": "SharedResources", "type": "SharedResources",
+                         "items": [{"name": _BASE_THEME, "path": f"BaseThemes/{_BASE_THEME}.json", "type": "BaseTheme"}]})
+        registered.append({"name": theme_file, "path": theme_file, "type": "CustomTheme"})
+    if logo_item:
+        registered.append({"name": logo_item, "path": logo_item, "type": "Image"})
+    if registered:
+        packages.append({"name": "RegisteredResources", "type": "RegisteredResources", "items": registered})
+    if packages:
+        report["resourcePackages"] = packages
     _write_json(os.path.join(defn, "report.json"), report)
 
 
@@ -142,7 +167,8 @@ def _write_semantic_model(model_dir: str, schema: Schema, design: Design, power_
 
 # --------------------------------------------------------------------------- pages + visuals
 def _write_pages(defn: str, design: Design, schema: Schema, brand: str,
-                 sidebar_color: str, accent: str, data_colors: list[str]) -> None:
+                 sidebar_color: str, accent: str, data_colors: list[str],
+                 nav_side: str = "left", logo_item: str | None = None, canvas: str = _CANVAS) -> None:
     pages_dir = os.path.join(defn, "pages")
     order: list[str] = []
     used: set[str] = set()
@@ -158,7 +184,8 @@ def _write_pages(defn: str, design: Design, schema: Schema, brand: str,
             "height": PAGE_H,
             "width": PAGE_W,
         })
-        _write_page_visuals(pages_dir, pid, page, schema, design, brand, sidebar_color, accent, data_colors)
+        _write_page_visuals(pages_dir, pid, page, schema, design, brand, sidebar_color,
+                            accent, data_colors, nav_side, logo_item, canvas)
 
     _write_json(os.path.join(pages_dir, "pages.json"), {
         "$schema": f"{_REPORT}/pagesMetadata/1.0.0/schema.json",
@@ -168,10 +195,15 @@ def _write_pages(defn: str, design: Design, schema: Schema, brand: str,
 
 
 def _write_page_visuals(pages_dir: str, pid: str, page, schema: Schema, design: Design,
-                        brand: str, sidebar_color: str, accent: str, data_colors: list[str]) -> None:
+                        brand: str, sidebar_color: str, accent: str, data_colors: list[str],
+                        nav_side: str = "left", logo_item: str | None = None,
+                        canvas: str = _CANVAS) -> None:
     vdir = os.path.join(pages_dir, pid, "visuals")
     table = schema.table
     tab = 0
+    nx = nav_x(nav_side)
+    main_x = (SIDEBAR_W + MARGIN) if nav_side == "left" else MARGIN
+    main_w = PAGE_W - SIDEBAR_W - 2 * MARGIN
 
     def emit(obj: dict) -> None:
         nonlocal tab
@@ -179,18 +211,21 @@ def _write_page_visuals(pages_dir: str, pid: str, page, schema: Schema, design: 
         tab += 1
 
     # light canvas behind everything, so white cards read as raised panels
-    emit(build_shape(f"{pid}-canvas", 0, 0, PAGE_W, PAGE_H, 0, tab, _CANVAS))
-    # sidebar background
-    emit(build_shape(f"{pid}-nav", 0, 0, SIDEBAR_W, PAGE_H, 1, tab, sidebar_color))
-    # brand strip — black text on a white card (readable regardless of the sidebar colour)
-    emit(build_textbox(f"{pid}-brand", [text_run(brand, "20pt", bold=True, color="#000000")],
-                       20, 28, SIDEBAR_W - 40, LOGO_ZONE_H - 60, 2, tab,
-                       background="#FFFFFF", align="left"))
+    emit(build_shape(f"{pid}-canvas", 0, 0, PAGE_W, PAGE_H, 0, tab, canvas))
+    # sidebar background (left or right)
+    emit(build_shape(f"{pid}-nav", nx, 0, SIDEBAR_W, PAGE_H, 1, tab, sidebar_color))
+    # logo image if provided, else a brand strip (black text on a white card)
+    if logo_item:
+        emit(build_image(f"{pid}-logo", logo_item, nx + 20, 28, SIDEBAR_W - 40, LOGO_ZONE_H - 60, 2, tab))
+    else:
+        emit(build_textbox(f"{pid}-brand", [text_run(brand, "20pt", bold=True, color="#000000")],
+                           nx + 20, 28, SIDEBAR_W - 40, LOGO_ZONE_H - 60, 2, tab,
+                           background="#FFFFFF", align="left"))
     # page title in the main area
     emit(build_textbox(f"{pid}-title", [text_run(page.name, "24pt", bold=True, color="#1B1F3B")],
-                       SIDEBAR_W + MARGIN, MARGIN, PAGE_W - SIDEBAR_W - 2 * MARGIN, TITLE_H, 2, tab))
+                       main_x, MARGIN, main_w, TITLE_H, 2, tab))
 
-    placed = pack(page, schema)
+    placed = pack(page, schema, nav_side)
     z = 3
     card_i = 0
     for i, v in enumerate(placed):
@@ -210,7 +245,7 @@ def _write_page_visuals(pages_dir: str, pid: str, page, schema: Schema, design: 
         runs = [text_run("How to use this report\n", "12pt", bold=True, color="#000000")]
         for note in design.usage_notes[:4]:
             runs.append(text_run(f"• {note}\n", "9pt", color="#000000"))
-        emit(build_textbox(f"{pid}-notes", runs, 16, PAGE_H - 320, SIDEBAR_W - 32, 300, z, tab,
+        emit(build_textbox(f"{pid}-notes", runs, nx + 16, PAGE_H - 320, SIDEBAR_W - 32, 300, z, tab,
                            background="#FFFFFF", align="left"))
 
 

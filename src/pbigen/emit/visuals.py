@@ -177,6 +177,21 @@ def build_shape(name: str, x: int, y: int, w: int, h: int, z: int, tab_order: in
     }
 
 
+def build_image(name: str, item_name: str, x: int, y: int, w: int, h: int,
+                z: int, tab_order: int) -> dict:
+    """An image visual bound to a registered resource (e.g. a logo)."""
+    objects = {"general": [{"properties": {"imageUrl": {"expr": {"ResourcePackageItem": {
+        "PackageName": "RegisteredResources", "PackageType": 1, "ItemName": item_name}}}}}]}
+    return {
+        "$schema": VISUAL_SCHEMA,
+        "name": name,
+        "position": {"x": float(x), "y": float(y), "z": float(z),
+                     "width": float(w), "height": float(h), "tabOrder": tab_order},
+        "visual": {"visualType": "image", "drillFilterOtherVisuals": False,
+                   "objects": objects, "visualContainerObjects": _container_no_title()},
+    }
+
+
 def text_run(value: str, size: str | None = None, bold: bool = False,
              color: str | None = None) -> dict:
     style: dict[str, Any] = {}

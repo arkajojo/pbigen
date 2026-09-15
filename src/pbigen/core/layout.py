@@ -30,10 +30,20 @@ def _is_wide(v: Visual) -> bool:
     return False
 
 
-def pack(page: Page, schema: Schema) -> list[Visual]:
+def nav_x(nav_side: str) -> int:
+    """Left edge of the navigation sidebar for the chosen side."""
+    return 0 if nav_side == "left" else PAGE_W - SIDEBAR_W
+
+
+def pack(page: Page, schema: Schema, nav_side: str = "left") -> list[Visual]:
     """Return the page's visuals with x/y/w/h assigned, plus positioned slicer visuals."""
     real_dates = {c.name for c in schema.columns if c.dtype == DATETIME}
     placed: list[Visual] = []
+
+    nx = nav_x(nav_side)
+    mx0 = (SIDEBAR_W + MARGIN) if nav_side == "left" else MARGIN   # main content left edge
+    mw = PAGE_W - SIDEBAR_W - 2 * MARGIN
+    bottom = PAGE_H - MARGIN
 
     # slicers stacked in the sidebar; real dates render as a range slider
     sy = LOGO_ZONE_H
@@ -42,12 +52,8 @@ def pack(page: Page, schema: Schema) -> list[Visual]:
         h = 84 if is_date else 72
         placed.append(Visual("slicer", title=col, category=col,
                              slicer_mode="Between" if is_date else "Dropdown",
-                             x=20, y=sy, w=SIDEBAR_W - 40, h=h))
+                             x=nx + 20, y=sy, w=SIDEBAR_W - 40, h=h))
         sy += h + 12
-
-    mx0 = SIDEBAR_W + MARGIN
-    mw = PAGE_W - mx0 - MARGIN
-    bottom = PAGE_H - MARGIN
 
     cards = [v for v in page.visuals if v.type in ("card", "kpi")][:8]
     body = [v for v in page.visuals if v.type not in ("card", "kpi")]
