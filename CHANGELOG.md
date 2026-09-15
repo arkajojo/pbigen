@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.2.1]
+
+### Fixed
+
+- **Equal padding below the page title.** The KPI card row started flush against the title; it now
+  sits one gap below it, matching the spacing between every other row.
+
 ## [0.2.0]
 
 ### Changed — executive aesthetics pass

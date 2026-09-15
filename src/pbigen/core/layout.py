@@ -52,7 +52,7 @@ def pack(page: Page, schema: Schema) -> list[Visual]:
     cards = [v for v in page.visuals if v.type in ("card", "kpi")][:8]
     body = [v for v in page.visuals if v.type not in ("card", "kpi")]
 
-    y = MARGIN + TITLE_H
+    y = MARGIN + TITLE_H + GAP     # equal gap below the page title, same as between all rows
     if cards:
         per = 4 if len(cards) > 3 else len(cards)
         for i0 in range(0, len(cards), per):
