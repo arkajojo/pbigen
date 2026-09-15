@@ -53,6 +53,7 @@ print(result.pbip_path)   # open this in Power BI Desktop
 - [Python API](#python-api)
 - [Command-line interface](#command-line-interface)
 - [Extending pbigen](#extending-pbigen)
+- [Documentation](#documentation)
 - [Roadmap](#roadmap)
 - [FAQ](#faq)
 - [Contributing](#contributing)
@@ -428,6 +429,20 @@ pbigen.generate(..., model=MyModel())
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+
+<br>
+
+## Documentation
+
+| Guide | What's in it |
+|-------|--------------|
+| **[docs/testing.md](docs/testing.md)** | Self-serve verification for every source and model — offline check → universal 6-step → schema validation → the full BigQuery matrix → troubleshooting. **Start here to test it.** |
+| **[docs/sources.md](docs/sources.md)** | Every connector: install, **authenticate** (with how to get credentials + IAM), configure, test, generate. |
+| **[docs/models.md](docs/models.md)** | Use any LLM: provider matrix (OpenAI, Anthropic, Gemini, Azure, Bedrock, local Ollama/vLLM) with env-var auth + examples. |
+| **[docs/themes.md](docs/themes.md)** | Built-in themes and bringing your own Power BI theme JSON. |
+| **[docs/publishing.md](docs/publishing.md)** | Maintainer runbook: build, release to PyPI, and the tag-triggered Trusted-Publishing workflow. |
+| **[examples/](examples/)** | Runnable scripts: local Parquet, BigQuery, LLM-refined design, and the 4-combo BigQuery verification harness. |
+| **[CONTRIBUTING.md](CONTRIBUTING.md)** · **[CHANGELOG.md](CHANGELOG.md)** | How to contribute; release history. |
 
 <br>
 
