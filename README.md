@@ -82,44 +82,24 @@ drops straight into source control and your existing Power BI workflow.
 
 ## How dashforge compares
 
-There are plenty of ways to make a dashboard. Almost none of them **auto-design a complete,
-governed Power BI report from an arbitrary source and hand you version-controlled files.** That gap
-is the point of dashforge.
+AI dashboard generation is a crowded space in 2026 — Power BI Copilot and Agent Skills, plus
+agentic BI platforms like ThoughtSpot, Tableau Pulse, Sigma, Domo and Tellius. Most of them are
+powerful, and most are **cloud services that build dashboards inside their own surface**. dashforge
+takes a different shape: it's a small, open-source library that turns a table into **portable,
+version-controlled Power BI files** on your machine — free, and offline by default.
 
-| | **dashforge** | Power BI by hand | Power BI Copilot (Fabric) | Dashboard-as-code<br>(Looker / Evidence / Streamlit) |
+| Capability | **dashforge** | Power BI Copilot / Agent Skills | Agentic BI platforms<br>(ThoughtSpot, Sigma, Tableau Pulse, Domo, Tellius) | Generic LLM<br>(ChatGPT / Claude) |
 |---|:---:|:---:|:---:|:---:|
-| Auto-designs the whole report from a table | ✅ | ❌ | ⚠️ assists, still manual | ⚠️ you write it |
-| One interface across warehouses **+ lakehouse + semantic layer**, multi-cloud | ✅ | ⚠️ manual per connector | ⚠️ Fabric-centric | ⚠️ varies |
-| Emits **native** Power BI that opens in Desktop | ✅ | ✅ | ✅ | ❌ different tool / web app |
-| Output is **text, version-controlled, CI-friendly** | ✅ | ⚠️ only if PBIR enabled | ❌ lives in the service | ✅ |
-| Runs **locally / in CI**, no proprietary capacity | ✅ | ✅ (Desktop) | ❌ needs Fabric capacity | ✅ |
-| Works with **no LLM / API key** (deterministic) | ✅ | ✅ | ❌ requires their AI | ✅ |
-| **Metadata-only** — no row data leaves your machine to design | ✅ | ✅ | ⚠️ cloud service | ✅ |
-| **Open source, MIT, no lock-in** | ✅ | ❌ | ❌ | ⚠️ mixed |
+| Outputs **native, portable Power BI files** (PBIP you own) | ✅ | ⚠️ builds in the service | ❌ their own BI surface | ❌ snippets only |
+| **Version-controlled, CI-friendly** text output (PBIR + TMDL) | ✅ | ⚠️ not the generation flow | ❌ | ❌ |
+| Runs **locally / in CI**, no paid cloud capacity | ✅ | ❌ needs Fabric capacity (F2+) | ❌ SaaS subscription | ⚠️ needs API/subscription |
+| Works with **no LLM / API key** (deterministic) | ✅ | ❌ | ❌ | ❌ |
+| One interface across warehouses **+ lakehouse (Iceberg/Delta) + semantic layer**, multi-cloud | ✅ | ⚠️ Fabric / OneLake-centric | ⚠️ varies by vendor | ❌ |
+| **Metadata-only** — no row data leaves your environment to design | ✅ | ⚠️ cloud service | ⚠️ SaaS | ❌ you paste data |
+| **Open source (MIT)**, self-hostable, no lock-in | ✅ | ❌ | ❌ | ❌ |
+| Cost | **Free** | Paid (Fabric capacity) | Paid (per-seat SaaS) | Usage-based |
 
-*(⚠️ = partial or conditional. Comparisons reflect the common default of each approach, not every edge case.)*
-
-### The moat — why this is hard to copy
-
-- **Correct, schema-valid PBIP/PBIR/TMDL emission is genuinely difficult.** Power BI's enhanced
-  report format is strict and sparsely documented. dashforge's output validates against Microsoft's
-  *published* JSON schemas — every generated report file, every run — so projects open in Desktop
-  without repair. That correctness is earned, not trivial to reproduce.
-- **A real design brain, not just a prompt.** The chart/filter choices come from a deterministic,
-  cardinality-aware engine (column-role classification, donut-vs-bar thresholds, date-as-range,
-  redundant-filter pruning, footprint-based layout). It's reproducible and free, with an LLM as an
-  *optional* refiner — not a dependency.
-- **Breadth behind one contract.** 16 source kinds across GCP, AWS, Azure, plus open table formats
-  and a semantic layer, all behind the same `introspect → cardinality → connect` interface. Adding
-  the next source is a small, isolated adapter.
-- **Enterprise-safe by construction.** Read-only, metadata-only, runs on your machine or in CI, no
-  cloud capacity to buy, no data egress to a vendor. That posture is easy to adopt and hard for a
-  SaaS-locked tool to match.
-- **Portable and composable.** MIT-licensed, clean seams (source / design / layout / emit), and
-  text output that lives in git — so it compounds with your existing workflow instead of replacing it.
-
-Where the moat **widens over time**: community source adapters, a theme/template ecosystem, and
-additional emit targets — each addition benefits every user and raises the cost of catching up.
+*(⚠️ = partial or conditional; comparisons reflect each tool's common default in 2026, not every edge case. Copilot / Agent Skills and the agentic platforms are genuinely capable — dashforge is the open, local, file-first option, and pairs fine alongside them.)*
 
 <br>
 
