@@ -194,13 +194,19 @@ pip install "pbigen[lakehouse]" pyarrow
 python examples/generate_from_parquet.py     # builds a sample file and generates from it
 ```
 
+> **Testing it for real?** **[docs/testing.md](docs/testing.md)** is a self-serve guide for your whole
+> team: how to install, **authenticate**, and verify every source and model — from the 30-second
+> offline check to a full BigQuery matrix (deterministic × LLM, built-in × custom theme) validated
+> against Microsoft's schemas.
+
 <br>
 
 ## Supported sources
 
 Every adapter implements the same read-only contract — **introspect** (columns + canonical types),
 **approx_distinct** (cardinality, to drive design), and **power_query** (the M the report uses to
-connect at refresh). Full config and credentials for each live in **[docs/sources.md](docs/sources.md)**.
+connect at refresh). Per-source **authentication**, config, and a test recipe live in
+**[docs/sources.md](docs/sources.md)**; the end-to-end verification guide is **[docs/testing.md](docs/testing.md)**.
 
 | Cloud / family | Sources | Extra |
 |----------------|---------|-------|

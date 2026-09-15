@@ -1,0 +1,25 @@
+{
+  "name": "Acme Corporate",
+  "sidebarColor": "#10233F",
+  "accentColor": "#F2F6FC",
+  "dataColors": ["#2E6BE6", "#17B3A3", "#F5A623", "#E8506E", "#6C5CE7", "#00A8CC", "#F76B1C", "#3AC29A"],
+  "background": "#FFFFFF",
+  "foreground": "#10233F",
+  "tableAccent": "#2E6BE6",
+  "good": "#17B3A3",
+  "neutral": "#F5A623",
+  "bad": "#E8506E",
+  "maximum": "#10233F",
+  "center": "#7C8DB0",
+  "minimum": "#DCE6F7",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{"show": true, "color": {"solid": {"color": "#FFFFFF"}}, "transparency": 0}],
+        "border": [{"show": true, "color": {"solid": {"color": "#E3E9F4"}}, "radius": 8}],
+        "title": [{"show": true, "fontColor": {"solid": {"color": "#10233F"}}, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left"}],
+        "visualHeader": [{"show": false}]
+      }
+    }
+  }
+}
