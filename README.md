@@ -46,6 +46,8 @@ print(result.pbip_path)   # open this in Power BI Desktop
 - [Supported sources](#supported-sources)
 - [Models: deterministic by default, LLM optional](#models-deterministic-by-default-llm-optional)
 - [Themes: bring your own, or use a built-in](#themes-bring-your-own-or-use-a-built-in)
+- [Layout, logo & storage mode](#layout-logo--storage-mode)
+- [Replicate a report's design shell](#replicate-a-reports-design-shell)
 - [How it works](#how-it-works)
 - [Anatomy of the output](#anatomy-of-the-output)
 - [Opening the result in Power BI Desktop](#opening-the-result-in-power-bi-desktop)
@@ -110,7 +112,13 @@ version-controlled Power BI files** on your machine — free, and offline by def
   major cloud, and a semantic layer.
 - 🧠 **Data-shape-aware design** — chart and filter choices follow from column types and cardinality,
   not guesswork.
-- 🎨 **Themes** — three polished built-ins, or drop in your corporate Power BI theme JSON.
+- 🎨 **Executive aesthetics** — light canvas, raised white cards with coloured KPI accent bars, big
+  numbers, refined typography and charts — with three polished built-in themes or your own theme JSON.
+- 🏗️ **Reusable design shell** — put the nav sidebar left or right (`--nav`), add a logo (`--logo`),
+  and **`extract-template`** the theme + logo out of a shared `.pbix` to regenerate *your* data in
+  someone else's look.
+- ⚙️ **Storage & scale controls** — `--mode import|directquery`, and `row_limit` to sample a huge
+  table for fast iteration.
 - 🤖 **Pluggable design model** — deterministic by default (no key, no network); optionally let any
   LiteLLM model (hosted or fully local) refine the design. **Only metadata is ever sent.**
 - 🧱 **Standards-based output** — a PBIP project (PBIR report + TMDL semantic model) that validates
@@ -274,6 +282,47 @@ Your theme travels with the project as a registered custom theme. More in
 
 <br>
 
+## Layout, logo & storage mode
+
+```bash
+pbigen generate ... --nav right                 # navigation sidebar on the right (default: left)
+pbigen generate ... --logo ./assets/logo.png    # drop a logo image into the nav sidebar
+pbigen generate ... --mode directquery          # live queries instead of an imported copy (import is default)
+pbigen generate --source bigquery --set ... row_limit=50000   # sample a huge table for fast iteration
+```
+
+- **`--nav left|right`** mirrors the whole shell (sidebar, filters, logo, notes) to that side.
+- **`--logo`** copies the image into the report's registered resources and binds it as an image visual.
+- **`--mode`** sets the semantic-model storage mode (`import` loads a copy; `directquery` queries the
+  source live — needs a DirectQuery-capable source such as a warehouse).
+- **`row_limit`** (BigQuery `--set`) generates a `Table.FirstN(…, N)` sample so big tables build fast.
+
+## Replicate a report's design shell
+
+Have a report you like — say a colleague shares its `.pbix`? Reuse its **look** (theme, colours,
+fonts, logo, nav layout) and pour **your own data** into it. A Power BI *theme* only carries
+colours/fonts/visual-style defaults — the rest of the shell you match with `--nav`/`--logo`.
+
+```bash
+# 1) pull the reusable shell out of the shared .pbix
+pbigen extract-template their_report.pbix --out template
+#    → template/theme.json          (their custom theme, if any)
+#    → template/assets/<logo>.png   (their logo / background images)
+
+# 2) regenerate YOUR data into that shell
+pbigen generate --source bigquery --set project=P dataset=D table=T \
+  --theme template/theme.json --logo template/assets/<logo>.png --nav right --out out
+```
+
+**What is and isn't replicated:** the **theme + logo + nav layout** are matched apple-to-apple; the
+**visuals and data are yours** (that's the point — your charts, not theirs). If the shared report used
+only a built-in theme, there's no custom `theme.json` to extract — `--nav`/`--logo` and a gallery
+theme still let you match the shell. For an *exact* clone of the same report on the same data, Power
+BI Desktop's native **File → Save as → `.pbip`** is the right tool — pbigen reuses the shell, it
+doesn't clone a specific report.
+
+<br>
+
 ## How it works
 
 ```
@@ -364,6 +413,9 @@ pbigen.generate(
     objective="",              # plain-language description of what the report should answer
     model=None,                # None/"deterministic" | LiteLLM model id | a Model instance
     theme=None,                # built-in name | path to a Power BI theme JSON
+    mode="import",             # "import" or "directquery" (semantic-model storage mode)
+    nav="left",                # navigation sidebar side: "left" or "right"
+    logo=None,                 # path to a logo image to place in the nav sidebar
     source_config=None,        # dict passed to the source adapter (when source is a string)
     model_config=None,         # dict passed to the model (e.g. api_key, api_base, temperature)
 ) -> GenerateResult
