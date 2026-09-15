@@ -31,14 +31,16 @@ _SUMMARIZE = {INTEGER: "sum", FLOAT: "sum", DECIMAL: "sum"}
 COMPAT_LEVEL = 1567
 
 
-def _dax(m: Measure, table: str) -> str:
+def _dax(m: Measure, table: str, cols: set[str]) -> str:
+    """DAX for a measure. Any reference to a column not in ``cols`` degrades to a safe COUNTROWS
+    rather than an expression that errors the visual in Power BI."""
     agg = (m.agg or "SUM").upper()
-    if m.kind == "ratio" and m.numerator and m.denominator:
-        return f"DIVIDE(SUM('{table}'[{m.numerator}]), SUM('{table}'[{m.denominator}]))"
-    if agg in ("COUNT", "DISTINCTCOUNT") and not m.column:
+    if m.kind == "ratio":
+        if m.numerator in cols and m.denominator in cols:
+            return f"DIVIDE(SUM('{table}'[{m.numerator}]), SUM('{table}'[{m.denominator}]))"
         return f"COUNTROWS('{table}')"
-    col = m.column or ""
-    if not col:
+    col = m.column
+    if not col or col not in cols:      # missing/invalid column -> would error; use a safe count
         return f"COUNTROWS('{table}')"
     return f"{agg}('{table}'[{col}])"
 
@@ -79,10 +81,11 @@ def normalize_mode(mode: str | None) -> str:
 def table_tmdl(schema: Schema, measures: Iterable[Measure], power_query: str,
                mode: str = "import") -> str:
     table = schema.table
+    cols = {c.name for c in schema.columns}
     lines: list[str] = [f"table '{table}'", ""]
 
     for m in measures:
-        lines.append(f"\tmeasure '{m.name}' = {_dax(m, table)}")
+        lines.append(f"\tmeasure '{m.name}' = {_dax(m, table, cols)}")
         lines.append(f"\t\tformatString: {_format_string(m)}")
         lines.append("")
 

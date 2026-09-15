@@ -28,7 +28,7 @@ from .core.generator import GenerateResult, generate
 from .sources import available_kinds, get_source
 from .themes import available_themes, get_theme
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __author__ = "Arka Gupta"
 
 __all__ = [

@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.3.2]
+
+### Fixed
+
+- **A measure can never emit a broken column reference.** As a defense-in-depth complement to the
+  0.3.1 parse-time drop, the DAX writer now degrades any measure that references a non-existent
+  column (or an invalid ratio) to a safe `COUNTROWS` instead of `SUM('t'[missing])`, so an
+  LLM-invented measure can't error a visual ("Something's wrong with one or more fields") even if it
+  slips past parsing. The deterministic path (always valid columns) is unaffected.
+
 ## [0.3.1]
 
 ### Fixed

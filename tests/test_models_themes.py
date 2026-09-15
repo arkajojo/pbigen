@@ -94,6 +94,21 @@ def test_llm_measures_referencing_missing_columns_are_dropped():
     assert all("Total Revenue" not in v.measures for v in d.pages[0].visuals)
 
 
+def test_dax_never_references_a_missing_column():
+    from pbigen.core.design import Measure
+    from pbigen.core.schema import Column, Schema
+    from pbigen.emit.model import table_tmdl
+
+    sch = Schema("orders", [Column("num_of_item", "integer")])
+    tmdl = table_tmdl(sch, [
+        Measure("Total Items", "agg", column="num_of_item", agg="SUM"),   # valid
+        Measure("Total Revenue", "agg", column="revenue", agg="SUM"),     # 'revenue' missing
+    ], "let\n Source=null\nin Source")
+    assert "SUM('orders'[num_of_item])" in tmdl          # valid column keeps its aggregation
+    assert "orders'[revenue]" not in tmdl                # never references the missing column
+    assert "Total Revenue' = COUNTROWS('orders')" in tmdl  # degrades to a safe count, no error
+
+
 def test_unknown_theme_raises():
     with pytest.raises(ValueError):
         get_theme("no-such-theme")
