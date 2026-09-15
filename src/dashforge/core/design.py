@@ -17,10 +17,10 @@ from .schema import DATETIME, NUMERIC_TYPES, Schema
 
 # ---- column-role heuristics -------------------------------------------------
 _DATE_HINT = re.compile(r"(date|dttm|_dt$|_ts$|timestamp|period|year_?month|yyyymm|mth|month|year|week|day)", re.I)
-_ID_HINT = re.compile(r"(_id$|^id$|_key$|^key$|uuid|guid|_no$|_number$|_code$|licen|plate|nric|phone|email|account)", re.I)
-_CAT_HINT = re.compile(r"(type|status|category|categ|segment|brand|region|area|zone|state|country|city|class|mode|method|group|flag|channel|source|reason|gender|shift|company|fleet|product|service|tier|band|level)", re.I)
+_ID_HINT = re.compile(r"(_id$|^id$|_key$|^key$|uuid|guid|_no$|_number$|_code$|ssn|tax_?id|passport|phone|email|account)", re.I)
+_CAT_HINT = re.compile(r"(type|status|category|categ|segment|brand|region|area|zone|state|country|city|class|mode|method|group|flag|channel|source|reason|gender|department|company|product|service|tier|band|level)", re.I)
 _GEO_HINT = re.compile(r"(lat|lon|lng|postal|zipcode|geohash)", re.I)
-_MONEY_HINT = re.compile(r"(income|fare|cost|amount|amt|revenue|sales|price|fee|levy|charge|value|gmv|spend|profit|margin)", re.I)
+_MONEY_HINT = re.compile(r"(income|cost|amount|amt|revenue|sales|price|fee|charge|value|gmv|spend|profit|margin|billing|payment)", re.I)
 # columns that are derived parts of a date — redundant as filters once a real date exists
 _PERIOD_PART = re.compile(r"(year|month|week|quarter|day.?of|_dt$|period|_yr$)", re.I)
 

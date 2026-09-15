@@ -39,6 +39,7 @@ print(result.pbip_path)   # open this in Power BI Desktop
 ## Table of contents
 
 - [Why dashforge](#why-dashforge)
+- [How dashforge compares](#how-dashforge-compares)
 - [Features](#features)
 - [Installation](#installation)
 - [Quickstart](#quickstart)
@@ -76,6 +77,49 @@ defaults** and **unopinionated about your stack**:
 
 The output is a standard, version-controllable **PBIP** project — not a black-box binary — so it
 drops straight into source control and your existing Power BI workflow.
+
+<br>
+
+## How dashforge compares
+
+There are plenty of ways to make a dashboard. Almost none of them **auto-design a complete,
+governed Power BI report from an arbitrary source and hand you version-controlled files.** That gap
+is the point of dashforge.
+
+| | **dashforge** | Power BI by hand | Power BI Copilot (Fabric) | Dashboard-as-code<br>(Looker / Evidence / Streamlit) |
+|---|:---:|:---:|:---:|:---:|
+| Auto-designs the whole report from a table | ✅ | ❌ | ⚠️ assists, still manual | ⚠️ you write it |
+| One interface across warehouses **+ lakehouse + semantic layer**, multi-cloud | ✅ | ⚠️ manual per connector | ⚠️ Fabric-centric | ⚠️ varies |
+| Emits **native** Power BI that opens in Desktop | ✅ | ✅ | ✅ | ❌ different tool / web app |
+| Output is **text, version-controlled, CI-friendly** | ✅ | ⚠️ only if PBIR enabled | ❌ lives in the service | ✅ |
+| Runs **locally / in CI**, no proprietary capacity | ✅ | ✅ (Desktop) | ❌ needs Fabric capacity | ✅ |
+| Works with **no LLM / API key** (deterministic) | ✅ | ✅ | ❌ requires their AI | ✅ |
+| **Metadata-only** — no row data leaves your machine to design | ✅ | ✅ | ⚠️ cloud service | ✅ |
+| **Open source, MIT, no lock-in** | ✅ | ❌ | ❌ | ⚠️ mixed |
+
+*(⚠️ = partial or conditional. Comparisons reflect the common default of each approach, not every edge case.)*
+
+### The moat — why this is hard to copy
+
+- **Correct, schema-valid PBIP/PBIR/TMDL emission is genuinely difficult.** Power BI's enhanced
+  report format is strict and sparsely documented. dashforge's output validates against Microsoft's
+  *published* JSON schemas — every generated report file, every run — so projects open in Desktop
+  without repair. That correctness is earned, not trivial to reproduce.
+- **A real design brain, not just a prompt.** The chart/filter choices come from a deterministic,
+  cardinality-aware engine (column-role classification, donut-vs-bar thresholds, date-as-range,
+  redundant-filter pruning, footprint-based layout). It's reproducible and free, with an LLM as an
+  *optional* refiner — not a dependency.
+- **Breadth behind one contract.** 16 source kinds across GCP, AWS, Azure, plus open table formats
+  and a semantic layer, all behind the same `introspect → cardinality → connect` interface. Adding
+  the next source is a small, isolated adapter.
+- **Enterprise-safe by construction.** Read-only, metadata-only, runs on your machine or in CI, no
+  cloud capacity to buy, no data egress to a vendor. That posture is easy to adopt and hard for a
+  SaaS-locked tool to match.
+- **Portable and composable.** MIT-licensed, clean seams (source / design / layout / emit), and
+  text output that lives in git — so it compounds with your existing workflow instead of replacing it.
+
+Where the moat **widens over time**: community source adapters, a theme/template ecosystem, and
+additional emit targets — each addition benefits every user and raises the cost of catching up.
 
 <br>
 
