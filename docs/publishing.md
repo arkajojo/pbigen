@@ -52,9 +52,27 @@ stored.
 
 ## Automated release (recommended)
 
-Configure PyPI Trusted Publishing for this repository, then a tag push builds and publishes via the
-GitHub Actions workflow. Until then, the CI workflow only lints, tests and builds on every push and
-pull request.
+`.github/workflows/release.yml` builds, publishes to PyPI, and creates a GitHub Release on every
+`v*` tag push — using **Trusted Publishing (OIDC)**, so no API token is ever stored.
+
+One-time setup on PyPI: **Manage → Publishing → Add a GitHub publisher** with
+
+- Owner: `arkajojo`
+- Repository: `pbigen`
+- Workflow name: `release.yml`
+- Environment name: `pypi`
+
+(Optionally create a matching `pypi` environment under the repo's **Settings → Environments** to add
+approval gates.) After that, releasing is just:
+
+```bash
+# bump version in pyproject.toml and src/pbigen/__init__.py, update CHANGELOG.md, commit
+git tag v0.1.0 && git push --tags        # the workflow does build + publish + GitHub Release
+```
+
+With the workflow in place, do **not** also run `twine upload` or `gh release create` by hand for
+that version — the workflow owns it. The separate CI workflow keeps linting, testing and building on
+every push and pull request.
 
 ## Versioning
 
