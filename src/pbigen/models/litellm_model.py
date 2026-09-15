@@ -74,7 +74,10 @@ class LiteLLMModel(Model):
             raw = self._complete(self._prompt(schema, objective))
             parsed = _parse(raw, schema, baseline)
             return parsed or baseline
-        except Exception:  # noqa: BLE001 - never let the model break generation
+        except Exception as exc:  # noqa: BLE001 - never let the model break generation
+            import sys
+            print(f"pbigen: model '{self.model}' did not run ({type(exc).__name__}: "
+                  f"{str(exc)[:200]}); falling back to the deterministic design.", file=sys.stderr)
             return baseline
 
     def _prompt(self, schema: Schema, objective: str) -> str:

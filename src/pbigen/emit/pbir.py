@@ -30,6 +30,8 @@ from . import model as tmdl
 from .visuals import build_shape, build_textbox, build_visual, text_run
 
 _REPORT = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition"
+# a Power BI built-in monthly base theme the custom theme is layered on top of
+_BASE_THEME = "CY24SU10"
 _SAFE = re.compile(r"[^0-9A-Za-z_-]+")
 
 
@@ -62,8 +64,8 @@ def write_project(design: Design, schema: Schema, power_query: str, out_dir: str
     defn = os.path.join(report_dir, "definition")
 
     _write_semantic_model(model_dir, schema, design, power_query)
-    theme_name = _write_theme(defn, theme)
-    _write_report_shell(report_dir, defn, theme_name)
+    theme_file = _write_theme(defn, theme)
+    _write_report_shell(report_dir, defn, theme_file)
     _write_pages(defn, design, schema, brand or schema.display_name, sidebar_color, accent)
 
     pbip_path = os.path.join(root, f"{name}.pbip")
@@ -76,31 +78,46 @@ def write_project(design: Design, schema: Schema, power_query: str, out_dir: str
 
 
 # --------------------------------------------------------------------------- report shell
-def _write_report_shell(report_dir: str, defn: str, theme_name: str | None) -> None:
+def _write_report_shell(report_dir: str, defn: str, theme_file: str | None) -> None:
     _write_json(os.path.join(report_dir, "definition.pbir"), {
         "version": "4.0",
         "datasetReference": {"byPath": {"path": f"../{os.path.basename(report_dir)[:-7]}.SemanticModel"}},
     })
-    _write_json(os.path.join(defn, "version.json"), {"version": "2.0.0"})
+    # Power BI Desktop requires a $schema in version.json (it errors on load without it).
+    _write_json(os.path.join(defn, "version.json"), {
+        "$schema": f"{_REPORT}/versionMetadata/1.0.0/schema.json",
+        "version": "2.0.0",
+    })
 
     report: dict = {
         "$schema": f"{_REPORT}/report/1.3.0/schema.json",
         "layoutOptimization": "None",
     }
-    if theme_name:
-        report["themeCollection"] = {"customTheme": {
-            "name": theme_name, "type": "RegisteredResources", "reportVersionAtImport": "5.61",
-        }}
+    if theme_file:
+        # A custom theme is applied on top of a built-in base theme, and both the theme and the base
+        # must be declared in resourcePackages — this mirrors what Power BI Desktop itself writes.
+        report["themeCollection"] = {
+            "baseTheme": {"name": _BASE_THEME, "reportVersionAtImport": "5.61", "type": "SharedResources"},
+            "customTheme": {"name": theme_file, "reportVersionAtImport": "5.61", "type": "RegisteredResources"},
+        }
+        report["resourcePackages"] = [
+            {"name": "SharedResources", "type": "SharedResources",
+             "items": [{"name": _BASE_THEME, "path": f"BaseThemes/{_BASE_THEME}.json", "type": "BaseTheme"}]},
+            {"name": "RegisteredResources", "type": "RegisteredResources",
+             "items": [{"name": theme_file, "path": theme_file, "type": "CustomTheme"}]},
+        ]
+        report["settings"] = {"useStylableVisualContainerHeader": True}
     _write_json(os.path.join(defn, "report.json"), report)
 
 
 def _write_theme(defn: str, theme: dict | None) -> str | None:
+    """Write the theme as a registered resource; return its file name (used as the customTheme name)."""
     if not theme:
         return None
-    theme_name = theme.get("name", "PbigenTheme")
-    path = os.path.join(defn, "StaticResources", "RegisteredResources", f"{_slug(theme_name, 'theme')}.json")
+    theme_file = f"{_slug(theme.get('name', 'theme'), 'theme')}.json"
+    path = os.path.join(defn, "StaticResources", "RegisteredResources", theme_file)
     _write_json(path, theme)
-    return theme_name
+    return theme_file
 
 
 # --------------------------------------------------------------------------- semantic model

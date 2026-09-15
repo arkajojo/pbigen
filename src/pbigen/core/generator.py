@@ -56,6 +56,12 @@ def generate(
     design = mdl.design(schema, objective)
     theme_doc, sidebar, accent = split_chrome(get_theme(theme))
 
+    # Report the model honestly: an LLM that fails is caught and falls back to the deterministic
+    # design — say so rather than pretending the LLM ran.
+    model_name = mdl.name
+    if mdl.name != "deterministic" and not design.rationale.lower().startswith("llm"):
+        model_name = f"deterministic (fallback — {mdl.name} did not run; check the model id / credentials)"
+
     from ..emit import write_project
     project = name or _project_name(schema.display_name or schema.table)
     pbip_path = write_project(
@@ -65,5 +71,5 @@ def generate(
     )
     return GenerateResult(
         pbip_path=pbip_path, design=design, table=schema.table,
-        n_columns=len(schema.columns), n_pages=len(design.pages), model_name=mdl.name,
+        n_columns=len(schema.columns), n_pages=len(design.pages), model_name=model_name,
     )

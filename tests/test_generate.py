@@ -41,6 +41,11 @@ def test_generate_writes_openable_project(orders_parquet, tmp_path):
             seen_schema += 1
     assert seen_schema > 5
 
+    # version.json must carry its $schema (Power BI Desktop refuses to load without it)
+    version = json.loads((defn / "version.json").read_text())
+    assert version["$schema"].endswith("/versionMetadata/1.0.0/schema.json")
+    assert version["version"] == "2.0.0"
+
     # measures made it into the TMDL as DAX
     tmdl = (root / "OrdersDemo.SemanticModel" / "definition" / "tables" / "orders.tmdl").read_text()
     assert "SUM('orders'[revenue])" in tmdl
@@ -57,6 +62,14 @@ def test_generate_with_custom_theme_file(orders_parquet, tmp_path):
     )
     registered = (tmp_path / "Corp" / "Corp.Report" / "definition"
                   / "StaticResources" / "RegisteredResources")
-    assert any(registered.glob("*.json"))
+    theme_files = [p.name for p in registered.glob("*.json")]
+    assert theme_files, "custom theme not written as a registered resource"
+    theme_file = theme_files[0]                      # e.g. "CorpTheme.json"
+
     report = json.loads((tmp_path / "Corp" / "Corp.Report" / "definition" / "report.json").read_text())
-    assert report["themeCollection"]["customTheme"]["name"] == "CorpTheme"
+    tc = report["themeCollection"]
+    # customTheme is named by the registered FILE name, and sits on a base theme, both declared
+    assert tc["customTheme"]["name"] == theme_file
+    assert tc["baseTheme"]["name"]                    # a base theme is present
+    reg_pkg = next(p for p in report["resourcePackages"] if p["type"] == "RegisteredResources")
+    assert reg_pkg["items"][0]["path"] == theme_file
