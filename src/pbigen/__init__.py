@@ -1,13 +1,13 @@
-"""dashforge — generate world-class Power BI dashboards from any data source.
+"""pbigen — generate world-class Power BI dashboards from any data source.
 
 Point it at a table (BigQuery, Snowflake, Redshift, Synapse/Fabric, Databricks, ClickHouse,
 Athena, a Parquet/Iceberg/Delta lake on GCS/S3/ADLS, or a Cube semantic layer), and it
 introspects the schema, reasons about the data shape, and writes an openable Power BI project:
 a navigation sidebar, data-appropriate charts and filters, and usage notes.
 
-    import dashforge
+    import pbigen
 
-    result = dashforge.generate(
+    result = pbigen.generate(
         "bigquery",
         source_config={"project": "my-proj", "dataset": "sales", "table": "orders"},
         objective="Revenue and orders by region over time",

@@ -3,7 +3,7 @@ requires = ["hatchling>=1.24"]
 build-backend = "hatchling.build"
 
 [project]
-name = "dashforge"
+name = "pbigen"
 version = "0.1.0"
 description = "Generate governed, version-controlled Power BI reports from any warehouse or lakehouse — from a table and a plain-language objective."
 readme = "README.md"
@@ -55,19 +55,19 @@ all = [
 dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "build>=1.2", "twine>=5.0", "Pillow>=10.0"]
 
 [project.urls]
-Homepage = "https://github.com/arkajojo/dashforge"
-Repository = "https://github.com/arkajojo/dashforge"
-Issues = "https://github.com/arkajojo/dashforge/issues"
-Changelog = "https://github.com/arkajojo/dashforge/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/arkajojo/pbigen"
+Repository = "https://github.com/arkajojo/pbigen"
+Issues = "https://github.com/arkajojo/pbigen/issues"
+Changelog = "https://github.com/arkajojo/pbigen/blob/main/CHANGELOG.md"
 
 [project.scripts]
-dashforge = "dashforge.cli:main"
+pbigen = "pbigen.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/dashforge"]
+packages = ["src/pbigen"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/dashforge", "README.md", "LICENSE", "CHANGELOG.md"]
+include = ["src/pbigen", "README.md", "LICENSE", "CHANGELOG.md"]
 
 [tool.ruff]
 line-length = 100

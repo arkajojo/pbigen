@@ -1,6 +1,6 @@
 # Authors
 
-dashforge is created and maintained by:
+pbigen is created and maintained by:
 
 - **Arka Gupta** — author and maintainer &lt;arka.jojo@gmail.com&gt;
 

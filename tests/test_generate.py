@@ -9,12 +9,12 @@ import os
 
 import pytest
 
-import dashforge
+import pbigen
 
 
 def test_generate_writes_openable_project(orders_parquet, tmp_path):
     pytest.importorskip("duckdb")
-    result = dashforge.generate(
+    result = pbigen.generate(
         "parquet",
         source_config={"uri": orders_parquet},
         objective="Revenue and orders by region over time",
@@ -51,7 +51,7 @@ def test_generate_with_custom_theme_file(orders_parquet, tmp_path):
     pytest.importorskip("duckdb")
     theme = tmp_path / "corp.json"
     theme.write_text(json.dumps({"name": "CorpTheme", "dataColors": ["#123456", "#654321"]}))
-    dashforge.generate(
+    pbigen.generate(
         "parquet", source_config={"uri": orders_parquet},
         theme=str(theme), out_dir=str(tmp_path), name="Corp",
     )

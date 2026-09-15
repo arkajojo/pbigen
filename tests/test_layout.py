@@ -4,9 +4,9 @@ Author: Arka Gupta
 """
 from __future__ import annotations
 
-from dashforge.core.design import Page, Visual
-from dashforge.core.layout import PAGE_H, PAGE_W, SIDEBAR_W, pack
-from dashforge.core.schema import Column, Schema
+from pbigen.core.design import Page, Visual
+from pbigen.core.layout import PAGE_H, PAGE_W, SIDEBAR_W, pack
+from pbigen.core.schema import Column, Schema
 
 
 def _schema():

@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import pytest
 
-from dashforge.core.design import Visual
-from dashforge.emit.visuals import build_visual
-from dashforge.models import NullModel, get_model
-from dashforge.themes import available_themes, get_theme, split_chrome
+from pbigen.core.design import Visual
+from pbigen.emit.visuals import build_visual
+from pbigen.models import NullModel, get_model
+from pbigen.themes import available_themes, get_theme, split_chrome
 
 
 def test_default_model_is_deterministic():

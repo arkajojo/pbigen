@@ -6,8 +6,8 @@ plain-language objective into a design brief: which pages, which visuals, which 
 
 Two implementations ship in the box:
 
-* :class:`~dashforge.models.null_model.NullModel` — deterministic, no network, no key. The default.
-* :class:`~dashforge.models.litellm_model.LiteLLMModel` — any provider LiteLLM supports
+* :class:`~pbigen.models.null_model.NullModel` — deterministic, no network, no key. The default.
+* :class:`~pbigen.models.litellm_model.LiteLLMModel` — any provider LiteLLM supports
   (OpenAI, Anthropic, Gemini, Ollama, vLLM, …) via "bring your own key / endpoint".
 
 Author: Arka Gupta

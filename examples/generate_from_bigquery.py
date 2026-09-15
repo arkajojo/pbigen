@@ -1,7 +1,7 @@
 """Generate a Power BI dashboard from a BigQuery table.
 
 Run:  python examples/generate_from_bigquery.py
-Needs: pip install "dashforge[bigquery]"
+Needs: pip install "pbigen[bigquery]"
        Application Default Credentials: gcloud auth application-default login
 
 Also covers BigLake and BigQuery Omni tables — they use the same adapter.
@@ -10,11 +10,11 @@ Author: Arka Gupta
 """
 from __future__ import annotations
 
-import dashforge
+import pbigen
 
 
 def main() -> None:
-    result = dashforge.generate(
+    result = pbigen.generate(
         "bigquery",
         source_config={
             "project": "my-project",     # <- your GCP project

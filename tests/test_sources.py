@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-from dashforge.sources import available_kinds, get_source
+from pbigen.sources import available_kinds, get_source
 
 
 def test_registry_lists_all_clouds():
@@ -38,7 +38,7 @@ def test_lakehouse_introspects_parquet(orders_parquet):
 
 def test_sql_source_introspects_sqlite(sqlite_url):
     pytest.importorskip("sqlalchemy")
-    from dashforge.sources.sql_base import SqlSource
+    from pbigen.sources.sql_base import SqlSource
 
     src = SqlSource(sqlite_url, "orders")
     schema = src.introspect()

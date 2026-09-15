@@ -1,9 +1,9 @@
 """Command-line interface.
 
-    dashforge generate --source bigquery --set project=p dataset=d table=t --theme midnight
-    dashforge sources                       # list available source kinds
-    dashforge themes                        # list built-in themes
-    dashforge test --source lakehouse --set uri=data.parquet fmt=parquet
+    pbigen generate --source bigquery --set project=p dataset=d table=t --theme midnight
+    pbigen sources                       # list available source kinds
+    pbigen themes                        # list built-in themes
+    pbigen test --source lakehouse --set uri=data.parquet fmt=parquet
 
 Config values are passed as ``key=value`` pairs after ``--set`` and forwarded to the adapter.
 Integers and booleans are coerced; everything else stays a string.
@@ -80,9 +80,9 @@ def _cmd_test(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="dashforge",
+    p = argparse.ArgumentParser(prog="pbigen",
                                 description="Generate Power BI dashboards from any data source.")
-    p.add_argument("--version", action="version", version=f"dashforge {__version__}")
+    p.add_argument("--version", action="version", version=f"pbigen {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
 
     g = sub.add_parser("generate", help="generate a Power BI project from a source")

@@ -1,7 +1,7 @@
 """Generate a Power BI dashboard from a local Parquet file — fully offline.
 
 Run:  python examples/generate_from_parquet.py
-Needs: pip install "dashforge[lakehouse]" pyarrow
+Needs: pip install "pbigen[lakehouse]" pyarrow
 
 Author: Arka Gupta
 """
@@ -14,7 +14,7 @@ import random
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-import dashforge
+import pbigen
 
 
 def make_sample(path: str, n: int = 500) -> None:
@@ -38,7 +38,7 @@ def main() -> None:
     data = os.path.join("out", "orders.parquet")
     make_sample(data)
 
-    result = dashforge.generate(
+    result = pbigen.generate(
         "parquet",
         source_config={"uri": data},
         objective="Revenue and orders by region and product over time",

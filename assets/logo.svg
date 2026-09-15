@@ -1,10 +1,10 @@
-<svg width="520" height="128" viewBox="0 0 520 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="dashforge">
+<svg width="340" height="128" viewBox="0 0 340 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="pbigen">
   <defs>
     <linearGradient id="tile" x1="14" y1="14" x2="114" y2="114" gradientUnits="userSpaceOnUse">
       <stop stop-color="#2B2F6B"/>
       <stop offset="1" stop-color="#4C6FFF"/>
     </linearGradient>
-    <linearGradient id="word" x1="146" y1="40" x2="500" y2="96" gradientUnits="userSpaceOnUse">
+    <linearGradient id="word" x1="146" y1="40" x2="322" y2="96" gradientUnits="userSpaceOnUse">
       <stop stop-color="#4C6FFF"/>
       <stop offset="1" stop-color="#22C1C3"/>
     </linearGradient>
@@ -20,5 +20,5 @@
   <circle cx="83" cy="32" r="5.5" fill="#FDBB2D"/>
 
   <!-- wordmark -->
-  <text x="146" y="82" font-family="'Segoe UI Semibold','Helvetica Neue',Arial,sans-serif" font-size="58" font-weight="700" letter-spacing="-1" fill="url(#word)">dashforge</text>
+  <text x="146" y="82" font-family="'Segoe UI Semibold','Helvetica Neue',Arial,sans-serif" font-size="58" font-weight="700" letter-spacing="-1" fill="url(#word)">pbigen</text>
 </svg>

@@ -1,8 +1,8 @@
 """The deterministic default model.
 
 No API key, no network, no cost. It runs the rule-based design brain in
-:mod:`dashforge.core.design`, which already reasons over canonical types and cardinality to pick
-charts and filters. This is what ``dashforge generate`` uses unless you opt into an LLM.
+:mod:`pbigen.core.design`, which already reasons over canonical types and cardinality to pick
+charts and filters. This is what ``pbigen generate`` uses unless you opt into an LLM.
 
 Author: Arka Gupta
 """

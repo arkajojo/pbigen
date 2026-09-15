@@ -97,7 +97,7 @@ def _write_report_shell(report_dir: str, defn: str, theme_name: str | None) -> N
 def _write_theme(defn: str, theme: dict | None) -> str | None:
     if not theme:
         return None
-    theme_name = theme.get("name", "DashforgeTheme")
+    theme_name = theme.get("name", "PbigenTheme")
     path = os.path.join(defn, "StaticResources", "RegisteredResources", f"{_slug(theme_name, 'theme')}.json")
     _write_json(path, theme)
     return theme_name

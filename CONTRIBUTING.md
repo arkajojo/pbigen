@@ -1,14 +1,14 @@
-# Contributing to dashforge
+# Contributing to pbigen
 
-Thanks for taking the time to contribute. dashforge aims to make good BI dashboards fall out of a
+Thanks for taking the time to contribute. pbigen aims to make good BI dashboards fall out of a
 table and an objective — contributions that keep it correct, portable and pleasant to use are very
 welcome.
 
 ## Getting set up
 
 ```bash
-git clone https://github.com/arkajojo/dashforge
-cd dashforge
+git clone https://github.com/arkajojo/pbigen
+cd pbigen
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev,lakehouse,sqlalchemy]"
 ```

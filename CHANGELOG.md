@@ -21,4 +21,4 @@ Initial release.
   KPI cards, data-appropriate visuals and usage notes, plus a TMDL semantic model wired to the
   source. Output validates against Microsoft's published PBIR schemas.
 - Built-in themes (midnight, slate, aurora) and bring-your-own Power BI theme JSON support.
-- `dashforge` CLI (`generate`, `test`, `sources`, `themes`) and a `dashforge.generate()` Python API.
+- `pbigen` CLI (`generate`, `test`, `sources`, `themes`) and a `pbigen.generate()` Python API.

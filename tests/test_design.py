@@ -4,8 +4,8 @@ Author: Arka Gupta
 """
 from __future__ import annotations
 
-from dashforge.core.design import classify, design, propose_measures
-from dashforge.core.schema import Column, Schema
+from pbigen.core.design import classify, design, propose_measures
+from pbigen.core.schema import Column, Schema
 
 
 def _schema() -> Schema:

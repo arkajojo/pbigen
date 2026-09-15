@@ -89,7 +89,7 @@ def main() -> None:
 
     # --- wordmark (gradient), vertically centered on the tile ---
     word_font = ImageFont.truetype(BOLD, 104)
-    word = gradient_text("dashforge", word_font, (0x4C, 0x6F, 0xFF), (0x22, 0xC1, 0xC3))
+    word = gradient_text("pbigen", word_font, (0x4C, 0x6F, 0xFF), (0x22, 0xC1, 0xC3))
     wy = tile_xy[1] + (tile_wh[1] - word.height) // 2 - 6
     banner.alpha_composite(word, (300, wy))
 

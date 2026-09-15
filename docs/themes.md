@@ -6,13 +6,13 @@ your own Power BI theme JSON.
 ## Built-in themes
 
 ```bash
-dashforge themes           # midnight | slate | aurora
+pbigen themes           # midnight | slate | aurora
 ```
 
 ```python
-dashforge.generate(..., theme="midnight")   # deep indigo sidebar, blue/teal data colours
-dashforge.generate(..., theme="slate")      # neutral slate, red accent
-dashforge.generate(..., theme="aurora")     # deep green sidebar, green/blue data colours
+pbigen.generate(..., theme="midnight")   # deep indigo sidebar, blue/teal data colours
+pbigen.generate(..., theme="slate")      # neutral slate, red accent
+pbigen.generate(..., theme="aurora")     # deep green sidebar, green/blue data colours
 ```
 
 ## Bring your own
@@ -21,14 +21,14 @@ Point `theme` at any standard [Power BI theme JSON](https://learn.microsoft.com/
 and it is applied as-is — drop in your corporate theme:
 
 ```python
-dashforge.generate(..., theme="./corporate-theme.json")
+pbigen.generate(..., theme="./corporate-theme.json")
 ```
 
 The theme is written into the report as a registered custom theme, so it travels with the project.
 
 ### Sidebar colours
 
-dashforge reads two optional convenience keys from a theme document to colour the navigation
+pbigen reads two optional convenience keys from a theme document to colour the navigation
 sidebar; both are stripped before the theme file is written, so the file stays a valid Power BI
 theme:
 

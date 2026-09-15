@@ -1,13 +1,13 @@
 # Publishing
 
-How dashforge is built, tested and released to PyPI. This is the maintainer runbook.
+How pbigen is built, tested and released to PyPI. This is the maintainer runbook.
 
 ## Layout
 
 ```
-dashforge/
+pbigen/
 ├── pyproject.toml           # hatchling build, metadata, optional-dependency extras
-├── src/dashforge/           # src layout — import only works after install
+├── src/pbigen/           # src layout — import only works after install
 │   ├── core/                # schema, design brain, layout, generator (no drivers)
 │   ├── sources/             # source adapters + registry
 │   ├── models/              # deterministic + LiteLLM models + registry
@@ -29,7 +29,7 @@ pytest                        # test suite (runs fully offline)
 
 ## Cutting a release
 
-1. Bump the version in **both** `pyproject.toml` and `src/dashforge/__init__.py` (`__version__`).
+1. Bump the version in **both** `pyproject.toml` and `src/pbigen/__init__.py` (`__version__`).
 2. Update `CHANGELOG.md`.
 3. Commit and tag: `git tag v0.1.0 && git push --tags`.
 4. Build the artifacts:

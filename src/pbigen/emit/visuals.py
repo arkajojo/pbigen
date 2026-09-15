@@ -1,6 +1,6 @@
 """Build PBIR ``visual.json`` objects (visualContainer/2.0.0).
 
-Each logical :class:`~dashforge.core.design.Visual` becomes a Power BI visual container with its
+Each logical :class:`~pbigen.core.design.Visual` becomes a Power BI visual container with its
 field bindings expressed as query projections. Measures bind by name to model measures; category /
 series / column roles bind to model columns. Styling is left to the theme, so these objects stay
 minimal and schema-clean.

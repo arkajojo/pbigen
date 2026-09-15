@@ -1,20 +1,20 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/arkajojo/dashforge/main/assets/logo.svg" alt="dashforge" width="440">
+  <img src="https://raw.githubusercontent.com/arkajojo/pbigen/main/assets/logo.svg" alt="pbigen" width="440">
 </p>
 
 <h3 align="center">Generate world-class Power BI dashboards from any data source — automatically.</h3>
 
 <p align="center">
-  <a href="https://pypi.org/project/dashforge/"><img alt="PyPI" src="https://img.shields.io/pypi/v/dashforge.svg?color=4C6FFF"></a>
-  <a href="https://pypi.org/project/dashforge/"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/dashforge.svg?color=22C1C3"></a>
-  <a href="https://github.com/arkajojo/dashforge/actions"><img alt="CI" src="https://github.com/arkajojo/dashforge/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://pypi.org/project/pbigen/"><img alt="PyPI" src="https://img.shields.io/pypi/v/pbigen.svg?color=4C6FFF"></a>
+  <a href="https://pypi.org/project/pbigen/"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/pbigen.svg?color=22C1C3"></a>
+  <a href="https://github.com/arkajojo/pbigen/actions"><img alt="CI" src="https://github.com/arkajojo/pbigen/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1B1F3B.svg"></a>
   <img alt="Status" src="https://img.shields.io/badge/status-beta-FDBB2D.svg">
 </p>
 
 ---
 
-Point **dashforge** at a table or view. It reads the schema, reasons about the *shape* of the data
+Point **pbigen** at a table or view. It reads the schema, reasons about the *shape* of the data
 (types and cardinality), and writes a ready-to-open Power BI project: a left navigation sidebar with
 your brand and filters, KPI cards, data-appropriate charts, a detail table, and a "how to use this
 report" note — laid out cleanly, every time.
@@ -22,9 +22,9 @@ report" note — laid out cleanly, every time.
 No hand-built templates. No copy-pasting M queries. No guessing which chart fits which column.
 
 ```python
-import dashforge
+import pbigen
 
-result = dashforge.generate(
+result = pbigen.generate(
     "bigquery",
     source_config={"project": "my-proj", "dataset": "sales", "table": "orders"},
     objective="Revenue and orders by region over time",
@@ -38,8 +38,8 @@ print(result.pbip_path)   # open this in Power BI Desktop
 
 ## Table of contents
 
-- [Why dashforge](#why-dashforge)
-- [How dashforge compares](#how-dashforge-compares)
+- [Why pbigen](#why-pbigen)
+- [How pbigen compares](#how-pbigen-compares)
 - [Features](#features)
 - [Installation](#installation)
 - [Quickstart](#quickstart)
@@ -52,7 +52,7 @@ print(result.pbip_path)   # open this in Power BI Desktop
 - [The design intelligence](#the-design-intelligence)
 - [Python API](#python-api)
 - [Command-line interface](#command-line-interface)
-- [Extending dashforge](#extending-dashforge)
+- [Extending pbigen](#extending-pbigen)
 - [Roadmap](#roadmap)
 - [FAQ](#faq)
 - [Contributing](#contributing)
@@ -60,13 +60,13 @@ print(result.pbip_path)   # open this in Power BI Desktop
 
 <br>
 
-## Why dashforge
+## Why pbigen
 
 Building a good Power BI report by hand is slow and inconsistent. Someone picks the charts, wires
 every field, styles every visual, writes the connection query, and repeats it for the next dataset.
 The mechanical 90% eats the time that should go to the 10% that actually needs judgement.
 
-dashforge does the mechanical 90% correctly and consistently. It is **opinionated about good
+pbigen does the mechanical 90% correctly and consistently. It is **opinionated about good
 defaults** and **unopinionated about your stack**:
 
 - **Opinionated defaults** — cardinality-aware chart selection, a date column becomes a range filter
@@ -80,15 +80,15 @@ drops straight into source control and your existing Power BI workflow.
 
 <br>
 
-## How dashforge compares
+## How pbigen compares
 
 AI dashboard generation is a crowded space in 2026 — Power BI Copilot and Agent Skills, plus
 agentic BI platforms like ThoughtSpot, Tableau Pulse, Sigma, Domo and Tellius. Most of them are
-powerful, and most are **cloud services that build dashboards inside their own surface**. dashforge
+powerful, and most are **cloud services that build dashboards inside their own surface**. pbigen
 takes a different shape: it's a small, open-source library that turns a table into **portable,
 version-controlled Power BI files** on your machine — free, and offline by default.
 
-| Capability | **dashforge** | Power BI Copilot / Agent Skills | Agentic BI platforms<br>(ThoughtSpot, Sigma, Tableau Pulse, Domo, Tellius) | Generic LLM<br>(ChatGPT / Claude) |
+| Capability | **pbigen** | Power BI Copilot / Agent Skills | Agentic BI platforms<br>(ThoughtSpot, Sigma, Tableau Pulse, Domo, Tellius) | Generic LLM<br>(ChatGPT / Claude) |
 |---|:---:|:---:|:---:|:---:|
 | Outputs **native, portable Power BI files** (PBIP you own) | ✅ | ⚠️ builds in the service | ❌ their own BI surface | ❌ snippets only |
 | **Version-controlled, CI-friendly** text output (PBIR + TMDL) | ✅ | ⚠️ not the generation flow | ❌ | ❌ |
@@ -99,7 +99,7 @@ version-controlled Power BI files** on your machine — free, and offline by def
 | **Open source (MIT)**, self-hostable, no lock-in | ✅ | ❌ | ❌ | ❌ |
 | Cost | **Free** | Paid (Fabric capacity) | Paid (per-seat SaaS) | Usage-based |
 
-*(⚠️ = partial or conditional; comparisons reflect each tool's common default in 2026, not every edge case. Copilot / Agent Skills and the agentic platforms are genuinely capable — dashforge is the open, local, file-first option, and pairs fine alongside them.)*
+*(⚠️ = partial or conditional; comparisons reflect each tool's common default in 2026, not every edge case. Copilot / Agent Skills and the agentic platforms are genuinely capable — pbigen is the open, local, file-first option, and pairs fine alongside them.)*
 
 <br>
 
@@ -123,7 +123,7 @@ version-controlled Power BI files** on your machine — free, and offline by def
 ## Installation
 
 ```bash
-pip install dashforge
+pip install pbigen
 ```
 
 The core is dependency-light. Install only the extras you need — each pulls in exactly one stack's
@@ -131,23 +131,23 @@ driver:
 
 | Extra | Installs support for |
 |-------|----------------------|
-| `dashforge[bigquery]` | BigQuery, BigLake, BigQuery Omni |
-| `dashforge[redshift]` | Amazon Redshift |
-| `dashforge[athena]` | Amazon Athena |
-| `dashforge[snowflake]` | Snowflake |
-| `dashforge[synapse]` | Azure Synapse / Microsoft Fabric / SQL Server |
-| `dashforge[databricks]` | Databricks SQL |
-| `dashforge[clickhouse]` | ClickHouse |
-| `dashforge[postgres]` | PostgreSQL |
-| `dashforge[lakehouse]` | Parquet, Iceberg, Delta on local / GCS / S3 / ADLS (DuckDB) |
-| `dashforge[cube]` | Cube semantic layer |
-| `dashforge[llm]` | LLM-refined design via LiteLLM |
-| `dashforge[all]` | Everything above |
+| `pbigen[bigquery]` | BigQuery, BigLake, BigQuery Omni |
+| `pbigen[redshift]` | Amazon Redshift |
+| `pbigen[athena]` | Amazon Athena |
+| `pbigen[snowflake]` | Snowflake |
+| `pbigen[synapse]` | Azure Synapse / Microsoft Fabric / SQL Server |
+| `pbigen[databricks]` | Databricks SQL |
+| `pbigen[clickhouse]` | ClickHouse |
+| `pbigen[postgres]` | PostgreSQL |
+| `pbigen[lakehouse]` | Parquet, Iceberg, Delta on local / GCS / S3 / ADLS (DuckDB) |
+| `pbigen[cube]` | Cube semantic layer |
+| `pbigen[llm]` | LLM-refined design via LiteLLM |
+| `pbigen[all]` | Everything above |
 
 ```bash
-pip install "dashforge[bigquery]"
-pip install "dashforge[lakehouse,llm]"
-pip install "dashforge[all]"
+pip install "pbigen[bigquery]"
+pip install "pbigen[lakehouse,llm]"
+pip install "pbigen[all]"
 ```
 
 **Requirements:** Python 3.10+. To open the generated project you need Power BI Desktop with the
@@ -160,9 +160,9 @@ PBIR preview enabled — see [Opening the result](#opening-the-result-in-power-b
 ### Python
 
 ```python
-import dashforge
+import pbigen
 
-result = dashforge.generate(
+result = pbigen.generate(
     "snowflake",
     source_config={
         "account": "ab12345", "warehouse": "BI_WH",
@@ -179,7 +179,7 @@ print(f"{result.n_pages} pages, {result.n_columns} columns → {result.pbip_path
 ### Command line
 
 ```bash
-dashforge generate --source snowflake \
+pbigen generate --source snowflake \
   --set account=ab12345 warehouse=BI_WH database=ANALYTICS schema=SALES table=ORDERS \
   --objective "Sales performance by region and product" \
   --theme midnight --out out --name SalesOverview
@@ -190,7 +190,7 @@ dashforge generate --source snowflake \
 No cloud account needed — generate from a local Parquet file:
 
 ```bash
-pip install "dashforge[lakehouse]" pyarrow
+pip install "pbigen[lakehouse]" pyarrow
 python examples/generate_from_parquet.py     # builds a sample file and generates from it
 ```
 
@@ -211,8 +211,8 @@ connect at refresh). Full config and credentials for each live in **[docs/source
 | **Semantic layer** | Cube | `cube` |
 
 ```bash
-dashforge sources                                   # list every source kind
-dashforge test --source lakehouse --set uri=./sales.parquet fmt=parquet   # verify connectivity
+pbigen sources                                   # list every source kind
+pbigen test --source lakehouse --set uri=./sales.parquet fmt=parquet   # verify connectivity
 ```
 
 Open table formats (Parquet, Apache Iceberg, Delta Lake) are read on local disk or any of the three
@@ -224,18 +224,18 @@ through a Fabric Lakehouse or Databricks SQL endpoint (details in [docs/sources.
 
 ## Models: deterministic by default, LLM optional
 
-Out of the box, dashforge designs dashboards with a **deterministic, no-key engine** — no network
+Out of the box, pbigen designs dashboards with a **deterministic, no-key engine** — no network
 call, no cost, fully reproducible. To let a language model refine the design, pass any
 [LiteLLM](https://github.com/BerriAI/litellm) model id — hosted or a local open-source model:
 
 ```python
-dashforge.generate("bigquery", source_config={...},
+pbigen.generate("bigquery", source_config={...},
                    model="gpt-4o-mini")                     # bring your own key via env
 
-dashforge.generate("bigquery", source_config={...},
+pbigen.generate("bigquery", source_config={...},
                    model="anthropic/claude-sonnet-4-6")
 
-dashforge.generate("bigquery", source_config={...},
+pbigen.generate("bigquery", source_config={...},
                    model="ollama/llama3",                   # fully local, open-source
                    model_config={"api_base": "http://localhost:11434"})
 ```
@@ -243,7 +243,7 @@ dashforge.generate("bigquery", source_config={...},
 > **Privacy:** only **metadata** — column names, canonical types and approximate distinct counts —
 > is ever sent to a model. No row data leaves your machine. Every field the model returns is
 > validated against the live schema, and if the model is unreachable or returns something unusable,
-> dashforge falls back to the deterministic design so generation never hard-fails.
+> pbigen falls back to the deterministic design so generation never hard-fails.
 
 More in **[docs/models.md](docs/models.md)**.
 
@@ -252,8 +252,8 @@ More in **[docs/models.md](docs/models.md)**.
 ## Themes: bring your own, or use a built-in
 
 ```python
-dashforge.generate(..., theme="midnight")            # built-in: midnight | slate | aurora
-dashforge.generate(..., theme="./corporate.json")    # your Power BI theme JSON, applied as-is
+pbigen.generate(..., theme="midnight")            # built-in: midnight | slate | aurora
+pbigen.generate(..., theme="./corporate.json")    # your Power BI theme JSON, applied as-is
 ```
 
 | Theme | Look |
@@ -324,7 +324,7 @@ The output is a **PBIP** project. Enable the enhanced report format once:
 3. Restart Power BI Desktop.
 
 Then open the `.pbip` file and **Refresh** to load data through the generated connection. (This is a
-one-time setting; PBIR is Microsoft's text-based report format that dashforge emits.)
+one-time setting; PBIR is Microsoft's text-based report format that pbigen emits.)
 
 <br>
 
@@ -349,7 +349,7 @@ The deterministic engine makes these calls from the data shape, before any LLM i
 ## Python API
 
 ```python
-dashforge.generate(
+pbigen.generate(
     source,                    # a source kind string, or a configured Source instance
     *,
     out_dir="out",             # where to write the project
@@ -373,32 +373,32 @@ class GenerateResult:
     model_name: str      # "deterministic" or e.g. "litellm:gpt-4o-mini"
 ```
 
-Helpers: `dashforge.available_kinds()`, `dashforge.available_themes()`, `dashforge.get_source(kind, **cfg)`.
+Helpers: `pbigen.available_kinds()`, `pbigen.available_themes()`, `pbigen.get_source(kind, **cfg)`.
 
 <br>
 
 ## Command-line interface
 
 ```bash
-dashforge generate --source <kind> [--set k=v ...] [--objective ...] \
+pbigen generate --source <kind> [--set k=v ...] [--objective ...] \
                    [--model ...] [--theme ...] [--out DIR] [--name NAME]
-dashforge test     --source <kind> [--set k=v ...]      # verify connectivity + introspection
-dashforge sources                                       # list available source kinds
-dashforge themes                                        # list built-in themes
-dashforge --version
+pbigen test     --source <kind> [--set k=v ...]      # verify connectivity + introspection
+pbigen sources                                       # list available source kinds
+pbigen themes                                        # list built-in themes
+pbigen --version
 ```
 
 `--set` takes `key=value` pairs forwarded to the adapter; integers and booleans are coerced.
 
 <br>
 
-## Extending dashforge
+## Extending pbigen
 
 **Add a source** — subclass `Source` (or `SqlSource` for a SQLAlchemy dialect), implement
 `introspect`, `approx_distinct` and `power_query`, and register it:
 
 ```python
-from dashforge.sources.base import Source
+from pbigen.sources.base import Source
 
 class MySource(Source):
     kind = "mysource"
@@ -410,15 +410,15 @@ class MySource(Source):
 **Add a design model** — subclass `Model` and return a `Design` (start from the deterministic one):
 
 ```python
-from dashforge.models.base import Model
-from dashforge.core.design import design as deterministic
+from pbigen.models.base import Model
+from pbigen.core.design import design as deterministic
 
 class MyModel(Model):
     name = "my-model"
     def design(self, schema, objective):
         return deterministic(schema, objective)   # then refine
 
-dashforge.generate(..., model=MyModel())
+pbigen.generate(..., model=MyModel())
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
