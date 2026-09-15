@@ -20,7 +20,11 @@ _DATE_HINT = re.compile(r"(date|dttm|_dt$|_ts$|timestamp|period|year_?month|yyyy
 _ID_HINT = re.compile(r"(_id$|^id$|_key$|^key$|uuid|guid|_no$|_number$|_code$|ssn|tax_?id|passport|phone|email|account)", re.I)
 _CAT_HINT = re.compile(r"(type|status|category|categ|segment|brand|region|area|zone|state|country|city|class|mode|method|group|flag|channel|source|reason|gender|department|company|product|service|tier|band|level)", re.I)
 _GEO_HINT = re.compile(r"(lat|lon|lng|postal|zipcode|geohash)", re.I)
-_MONEY_HINT = re.compile(r"(income|cost|amount|amt|revenue|sales|price|fee|charge|value|gmv|spend|profit|margin|billing|payment)", re.I)
+# numeric-looking columns that are really codes/geographies/keys — never sum these
+_GEOCODE_HINT = re.compile(r"(census|tract|community.?area|\bward\b|district|precinct|\bfips\b|\bblock\b|postal|zip|pincode|geohash|latitude|longitude|\blat\b|\blon\b|\blng\b)", re.I)
+_MONEY_HINT = re.compile(r"(income|cost|amount|amt|revenue|sales|price|fee|charge|value|gmv|spend|profit|margin|billing|payment|fare|total|tip|toll|levy)", re.I)
+# numeric columns better averaged than summed
+_RATE_HINT = re.compile(r"(rate|ratio|pct|percent|avg|average|score|rating|index|per_)", re.I)
 # columns that are derived parts of a date — redundant as filters once a real date exists
 _PERIOD_PART = re.compile(r"(year|month|week|quarter|day.?of|_dt$|period|_yr$)", re.I)
 
@@ -81,32 +85,56 @@ class Design:
 
 
 def classify(schema: Schema) -> dict[str, list[str]]:
-    """Bucket columns into measures / dates / categories / geo / ids."""
+    """Bucket columns into measures / dates / categories / geo / ids.
+
+    A numeric column is only a measure if it is genuinely additive — geographic codes
+    (census tract, community area, lat/long), keys and id-like numerics are excluded so they
+    are never summed into nonsense measures.
+    """
     out: dict[str, list[str]] = {"measures": [], "dates": [], "categories": [], "geo": [], "ids": []}
     for c in schema.columns:
         low = c.name.lower()
-        if _GEO_HINT.search(low):
+        if _GEO_HINT.search(low) or _GEOCODE_HINT.search(low):
             out["geo"].append(c.name)
         elif c.dtype == DATETIME or (_DATE_HINT.search(low) and (c.is_numeric or c.dtype == "string" or c.is_temporal)):
             out["dates"].append(c.name)
         elif _ID_HINT.search(low):
             out["ids"].append(c.name)
         elif c.dtype in NUMERIC_TYPES:
-            out["measures"].append(c.name)
+            out["measures"].append(c.name)     # remaining numerics are additive measures
         else:
             out["categories"].append(c.name)
-    out["categories"].sort(key=lambda n: (0 if _CAT_HINT.search(n.lower()) else 1, len(n)))
+    # order categories by cardinality (small = better for donuts/legends), then cat-hint, then length
+    out["categories"].sort(key=lambda n: (_card(schema, n), 0 if _CAT_HINT.search(n.lower()) else 1, len(n)))
     out["dates"].sort(key=lambda n: (0 if _DATE_HINT.search(n.lower()) else 1, len(n)))
     return out
 
 
-def propose_measures(schema: Schema, limit: int = 6) -> list[Measure]:
-    """Synthesise SUM measures from numeric columns when none are supplied."""
+def _card(schema: Schema, name: str) -> int:
+    c = schema.by_name(name)
+    return c.cardinality if (c and c.cardinality is not None) else 10_000
+
+
+def _pretty(col: str) -> str:
+    return col.replace("_", " ").title()
+
+
+def propose_measures(schema: Schema, limit: int = 5) -> list[Measure]:
+    """Synthesise headline measures from additive numeric columns.
+
+    Always leads with a row count (a headline that is guaranteed to have data), then sums the
+    additive numerics and averages the rate/ratio-style ones.
+    """
     cls = classify(schema)
-    out: list[Measure] = []
+    out: list[Measure] = [Measure("Record Count", "agg", column=None, agg="COUNT")]
     for col in cls["measures"][:limit]:
-        pretty = "Total " + col.replace("_", " ").title()
-        out.append(Measure(pretty, "agg", column=col, agg="SUM", money=bool(_MONEY_HINT.search(col.lower()))))
+        low = col.lower()
+        if _RATE_HINT.search(low):
+            out.append(Measure("Avg " + _pretty(col), "agg", column=col, agg="AVERAGE",
+                               percent=bool(re.search(r"(rate|ratio|pct|percent)", low))))
+        else:
+            out.append(Measure("Total " + _pretty(col), "agg", column=col, agg="SUM",
+                               money=bool(_MONEY_HINT.search(low))))
     return out
 
 
@@ -125,54 +153,59 @@ def design(schema: Schema, objective: str = "", measures: list[Measure] | None =
     cls = classify(schema)
     real_dates = {c.name for c in schema.columns if c.dtype == DATETIME}
     measures = measures or propose_measures(schema)
-    headline = [m.name for m in measures][:6] or ["(no measure)"]
+    headline = [m.name for m in measures][:5] or ["(no measure)"]
     lead = headline[0]
 
     date = cls["dates"][0] if cls["dates"] else None
-    dims = [d for d in cls["categories"]][:4]
+    # only categories small enough to chart cleanly; ordered smallest-cardinality first
+    dims = [d for d in cls["categories"] if _card(schema, d) <= 50][:4]
     dim0 = dims[0] if dims else None
     dim1 = dims[1] if len(dims) > 1 else None
 
-    def low_card(col: str | None) -> bool:
-        c = schema.by_name(col) if col else None
-        return bool(col) and (c is None or c.cardinality is None or c.cardinality <= 8)
+    def low_card(col: str | None, n: int = 8) -> bool:
+        return bool(col) and _card(schema, col) <= n
 
-    def breakdown(metric: str, dim: str, title: str) -> Visual:
-        # donut only for few categories, else a bar chart
-        return Visual("donut" if low_card(dim) else "bar", title, measures=[metric], category=dim)
+    # a field is only safe on a legend/series if it has very few distinct values
+    series1 = dim1 if low_card(dim1, 6) else None
+
+    def breakdown(metric: str, dim: str) -> Visual:
+        # donut only for a handful of categories, else a horizontal bar (readable for many)
+        kind = "donut" if low_card(dim) else "bar"
+        return Visual(kind, f"{metric} by {_pretty(dim)}", measures=[metric], category=dim)
 
     slicers = [s for s in ([date] if date else []) + dims if _good_slicer(s, schema, real_dates)][:5]
     pages: list[Page] = []
 
-    # 1) Executive Summary
+    # 1) Executive Summary — KPI row, one trend line (single measure = clean), two breakdowns
     v = [Visual("card", m, measures=[m]) for m in headline[:4]]
     if date:
-        v.append(Visual("line", f"{lead} over time", measures=headline[:2], category=date))
+        v.append(Visual("line", f"{lead} over time", measures=[lead], category=date))
     if dim0:
-        v.append(breakdown(lead, dim0, f"{lead} by {dim0}"))
+        v.append(breakdown(lead, dim0))
     if dim1:
-        v.append(breakdown(lead, dim1, f"{lead} by {dim1}"))
+        v.append(breakdown(lead, dim1))
     pages.append(Page("Executive Summary", v, slicers))
 
-    # 2) Trends over time
+    # 2) Trends over time — cards + a multi-measure trend (2 measures max), one segmented column
     if date:
         v = [Visual("card", m, measures=[m]) for m in headline[:3]]
-        v.append(Visual("line", f"{lead} trend", measures=headline[:3], category=date))
+        v.append(Visual("line", f"{lead} and {headline[1]} over time" if len(headline) > 1 else f"{lead} over time",
+                        measures=headline[:2], category=date))
         if dim0:
-            v.append(Visual("column", f"{lead} by {dim0}", measures=headline[:2], category=dim0, series=dim1))
+            v.append(Visual("column", f"{lead} by {_pretty(dim0)}", measures=[lead], category=dim0, series=series1))
         pages.append(Page("Trends Over Time", v, slicers))
 
-    # 3) Segmentation & drivers
+    # 3) Segmentation & drivers — column + bar + a compact matrix (no high-cardinality legend)
     if dim0:
-        v = [Visual("column", f"{lead} by {dim0}", measures=[lead], category=dim0)]
+        v = [Visual("column", f"{lead} by {_pretty(dim0)}", measures=[lead], category=dim0)]
         if dim1:
-            v.append(Visual("bar", f"{lead} by {dim1}", measures=[lead], category=dim1))
-        v.append(Visual("matrix", f"{dim0} × measures", measures=headline, category=dim0, series=dim1))
+            v.append(Visual("bar", f"{lead} by {_pretty(dim1)}", measures=[lead], category=dim1))
+        v.append(Visual("matrix", f"{_pretty(dim0)} breakdown", measures=headline[:4], category=dim0, series=series1))
         pages.append(Page("Segmentation & Drivers", v, slicers))
 
-    # 4) Detail / self-serve
-    detail_cols = ([date] if date else []) + dims
-    v = [Visual("table", "Detail (all fields)", measures=headline, columns=detail_cols)]
+    # 4) Detail / self-serve — a focused table (a few dims + headline measures, not every field)
+    detail_cols = ([date] if date else []) + dims[:3]
+    v = [Visual("table", "Detail", measures=headline[:4], columns=detail_cols)]
     pages.append(Page("Detailed Data", v, slicers))
 
     notes = [

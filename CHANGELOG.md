@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.1.2]
+
+### Fixed
+
+- **BigQuery refresh on locked-down networks.** The generated Power Query now sets
+  `UseStorageApi=false`, so refresh falls back to the REST API instead of the BigQuery Storage Read
+  API — fixing `Storage API Error: failed to connect to all addresses` where a firewall blocks the
+  storage endpoint.
+- **Numeric geo/id codes are no longer summed into nonsense measures.** Census tracts, community
+  areas, lat/long, ward/district/FIPS/zip codes are classified as geographies, not measures — no
+  more "Total Pickup Census Tract".
+- **No more "too many columns in the Legend bucket".** A field is only placed on a chart legend /
+  matrix column when it has very few distinct values; high-cardinality dimensions become a bar
+  category instead.
+
+### Changed
+
+- **Cleaner, more executive design.** Every table leads with a guaranteed-populated **Record Count**
+  KPI; rate/ratio columns are averaged (not summed); charts use fewer measures with clear single-
+  subject titles ("Revenue by Region"); the detail table is focused rather than every-field.
+
 ## [0.1.1]
 
 ### Fixed

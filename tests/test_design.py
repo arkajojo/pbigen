@@ -30,8 +30,26 @@ def test_classify_buckets_columns():
 
 def test_propose_measures_marks_money():
     measures = {m.name: m for m in propose_measures(_schema())}
-    assert any(m.money for m in measures.values())      # revenue is money
-    assert all(m.agg == "SUM" for m in measures.values())
+    assert "Record Count" in measures                    # always leads with a guaranteed-populated KPI
+    assert measures["Record Count"].agg == "COUNT"
+    assert any(m.money for m in measures.values())       # revenue is money
+    # the additive numerics are summed
+    assert all(m.agg == "SUM" for m in measures.values() if m.column and m.name.startswith("Total"))
+
+
+def test_geo_codes_are_not_summed_into_measures():
+    from pbigen.core.schema import Column, Schema
+    s = Schema("trips", [
+        Column("fare", "float"), Column("trip_miles", "float"),
+        Column("pickup_census_tract", "integer"), Column("dropoff_community_area", "integer"),
+        Column("pickup_latitude", "float"),
+    ])
+    cls = classify(s)
+    assert "fare" in cls["measures"] and "trip_miles" in cls["measures"]
+    for geo in ("pickup_census_tract", "dropoff_community_area", "pickup_latitude"):
+        assert geo in cls["geo"], f"{geo} should be geo, not a measure"
+    names = [m.name for m in propose_measures(s)]
+    assert not any("Census Tract" in n or "Community Area" in n for n in names)
 
 
 def test_design_builds_narrative_pages():

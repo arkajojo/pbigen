@@ -71,9 +71,12 @@ class BigQuerySource(Source):
             return {}
 
     def power_query(self) -> str:
+        # UseStorageApi=false falls back to the REST API, so refresh works on networks that block
+        # the BigQuery Storage Read API endpoint (a common cause of
+        # "Storage API Error: failed to connect to all addresses").
         return (
             "let\n"
-            f'  Source = GoogleBigQuery.Database([BillingProject="{self.billing_project}"]),\n'
+            f'  Source = GoogleBigQuery.Database([BillingProject="{self.billing_project}", UseStorageApi=false]),\n'
             f'  Project = Source{{[Name="{self.project}"]}}[Data],\n'
             f'  Dataset = Project{{[Name="{self.dataset}", Kind="Schema"]}}[Data],\n'
             f'  Data = Dataset{{[Name="{self.table}", Kind="Table"]}}[Data]\n'
