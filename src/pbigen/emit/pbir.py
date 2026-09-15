@@ -64,7 +64,7 @@ def write_project(design: Design, schema: Schema, power_query: str, out_dir: str
     defn = os.path.join(report_dir, "definition")
 
     _write_semantic_model(model_dir, schema, design, power_query, mode)
-    theme_file = _write_theme(defn, theme)
+    theme_file = _write_theme(report_dir, theme)
     _write_report_shell(report_dir, defn, theme_file)
     _write_pages(defn, design, schema, brand or schema.display_name, sidebar_color, accent)
 
@@ -110,12 +110,17 @@ def _write_report_shell(report_dir: str, defn: str, theme_file: str | None) -> N
     _write_json(os.path.join(defn, "report.json"), report)
 
 
-def _write_theme(defn: str, theme: dict | None) -> str | None:
-    """Write the theme as a registered resource; return its file name (used as the customTheme name)."""
+def _write_theme(report_dir: str, theme: dict | None) -> str | None:
+    """Write the theme as a registered resource; return its file name (used as the customTheme name).
+
+    The resource folder is ``<name>.Report/StaticResources/...`` — a sibling of ``definition/``, NOT
+    inside it. Placing it under ``definition/`` means Power BI can't resolve it and silently falls
+    back to the default theme.
+    """
     if not theme:
         return None
     theme_file = f"{_slug(theme.get('name', 'theme'), 'theme')}.json"
-    path = os.path.join(defn, "StaticResources", "RegisteredResources", theme_file)
+    path = os.path.join(report_dir, "StaticResources", "RegisteredResources", theme_file)
     _write_json(path, theme)
     return theme_file
 

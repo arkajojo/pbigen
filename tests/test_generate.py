@@ -60,8 +60,8 @@ def test_generate_with_custom_theme_file(orders_parquet, tmp_path):
         "parquet", source_config={"uri": orders_parquet},
         theme=str(theme), out_dir=str(tmp_path), name="Corp",
     )
-    registered = (tmp_path / "Corp" / "Corp.Report" / "definition"
-                  / "StaticResources" / "RegisteredResources")
+    # StaticResources sits at the .Report root (sibling of definition/), or Power BI ignores the theme
+    registered = (tmp_path / "Corp" / "Corp.Report" / "StaticResources" / "RegisteredResources")
     theme_files = [p.name for p in registered.glob("*.json")]
     assert theme_files, "custom theme not written as a registered resource"
     theme_file = theme_files[0]                      # e.g. "CorpTheme.json"

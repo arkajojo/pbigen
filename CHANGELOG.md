@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.1.6]
+
+### Fixed
+
+- **Custom themes now actually apply.** The theme resource was written under
+  `definition/StaticResources/…`, but Power BI resolves registered resources from
+  `<name>.Report/StaticResources/…` (a sibling of `definition/`). It's now written there, so the
+  custom theme is picked up instead of silently falling back to the default.
+
 ## [0.1.5]
 
 ### Fixed
