@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.1.4]
+
+### Fixed
+
+- **Sidebar brand strip was white-on-white.** The theme's default white fill was landing on the
+  brand textbox, hiding the white brand text in a white box on the coloured sidebar. Textboxes with
+  no explicit background are now transparent, so the brand text shows on the navigation colour (and
+  the page title shows on the white page); the "how to use" note keeps its intentional white box.
+
 ## [0.1.3]
 
 ### Fixed

@@ -144,7 +144,11 @@ def build_textbox(name: str, runs: list[dict], x: int, y: int, w: int, h: int,
     if background:
         objects["background"] = [{"properties": {"show": _lit(True),
                                                  "color": {"solid": {"color": _lit(background)}}}}]
-        objects["border"] = [{"properties": {"show": _lit(False)}}]
+    else:
+        # transparent — so the coloured sidebar / white page shows through instead of the theme's
+        # default white fill (which otherwise hid the white brand text in a white box).
+        objects["background"] = [{"properties": {"show": _lit(False)}}]
+    objects["border"] = [{"properties": {"show": _lit(False)}}]
     return {
         "$schema": VISUAL_SCHEMA,
         "name": name,
