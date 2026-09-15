@@ -1,0 +1,25 @@
+{
+  "name": "Dashforge Slate",
+  "sidebarColor": "#2B2D42",
+  "accentColor": "#EDF2F4",
+  "dataColors": ["#8D99AE", "#EF233C", "#2B2D42", "#00A896", "#F4A261", "#457B9D", "#E9C46A", "#6A4C93"],
+  "background": "#FFFFFF",
+  "foreground": "#2B2D42",
+  "tableAccent": "#EF233C",
+  "good": "#00A896",
+  "neutral": "#E9C46A",
+  "bad": "#EF233C",
+  "maximum": "#2B2D42",
+  "center": "#8D99AE",
+  "minimum": "#EDF2F4",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{"show": true, "color": {"solid": {"color": "#FFFFFF"}}, "transparency": 0}],
+        "border": [{"show": true, "color": {"solid": {"color": "#E2E6EC"}}, "radius": 8}],
+        "title": [{"show": true, "fontColor": {"solid": {"color": "#2B2D42"}}, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left"}],
+        "visualHeader": [{"show": false}]
+      }
+    }
+  }
+}

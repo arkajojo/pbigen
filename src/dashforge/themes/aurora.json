@@ -1,0 +1,25 @@
+{
+  "name": "Dashforge Aurora",
+  "sidebarColor": "#0B3D2E",
+  "accentColor": "#EAF9F0",
+  "dataColors": ["#06D6A0", "#118AB2", "#FFD166", "#EF476F", "#073B4C", "#8AC926", "#FF9F1C", "#5F0F40"],
+  "background": "#FFFFFF",
+  "foreground": "#0B3D2E",
+  "tableAccent": "#06D6A0",
+  "good": "#06D6A0",
+  "neutral": "#FFD166",
+  "bad": "#EF476F",
+  "maximum": "#0B3D2E",
+  "center": "#5F9C86",
+  "minimum": "#EAF9F0",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{"show": true, "color": {"solid": {"color": "#FFFFFF"}}, "transparency": 0}],
+        "border": [{"show": true, "color": {"solid": {"color": "#DCEFE6"}}, "radius": 8}],
+        "title": [{"show": true, "fontColor": {"solid": {"color": "#0B3D2E"}}, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left"}],
+        "visualHeader": [{"show": false}]
+      }
+    }
+  }
+}

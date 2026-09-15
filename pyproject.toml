@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dashforge"
+version = "0.1.0"
+description = "Generate governed, version-controlled Power BI reports from any warehouse or lakehouse — from a table and a plain-language objective."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Arka Gupta", email = "arka.jojo@gmail.com" }]
+maintainers = [{ name = "Arka Gupta", email = "arka.jojo@gmail.com" }]
+keywords = [
+    "power-bi", "pbir", "pbip", "dashboards-as-code", "business-intelligence",
+    "bigquery", "snowflake", "redshift", "databricks", "iceberg", "delta-lake",
+    "analytics-engineering", "data-visualization", "llm",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Database :: Front-Ends",
+    "Typing :: Typed",
+]
+dependencies = []  # the core is dependency-free; adapters pull their own extras
+
+[project.optional-dependencies]
+# --- data sources (install only what you use) ---
+bigquery   = ["google-cloud-bigquery>=3.11"]
+sqlalchemy = ["sqlalchemy>=2.0"]
+postgres   = ["sqlalchemy>=2.0", "psycopg[binary]>=3.1"]
+redshift   = ["sqlalchemy>=2.0", "sqlalchemy-redshift>=0.8", "redshift-connector>=2.0"]
+snowflake  = ["sqlalchemy>=2.0", "snowflake-sqlalchemy>=1.5"]
+synapse    = ["sqlalchemy>=2.0", "pyodbc>=5.0"]
+databricks = ["sqlalchemy>=2.0", "databricks-sql-connector>=3.0"]
+clickhouse = ["sqlalchemy>=2.0", "clickhouse-sqlalchemy>=0.3"]
+athena     = ["sqlalchemy>=2.0", "pyathena[sqlalchemy]>=3.0"]
+lakehouse  = ["duckdb>=1.0"]          # Parquet / Iceberg / Delta on local, GCS, S3, ADLS
+cube       = ["requests>=2.28"]
+# --- language models (optional; the deterministic designer needs none) ---
+llm        = ["litellm>=1.40"]
+# --- convenience bundles ---
+all = [
+    "google-cloud-bigquery>=3.11", "sqlalchemy>=2.0", "duckdb>=1.0",
+    "requests>=2.28", "litellm>=1.40",
+]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "build>=1.2", "twine>=5.0"]
+
+[project.urls]
+Homepage = "https://github.com/arkagupta/dashforge"
+Repository = "https://github.com/arkagupta/dashforge"
+Issues = "https://github.com/arkagupta/dashforge/issues"
+Changelog = "https://github.com/arkagupta/dashforge/blob/main/CHANGELOG.md"
+
+[project.scripts]
+dashforge = "dashforge.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dashforge"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/dashforge", "README.md", "LICENSE", "CHANGELOG.md"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

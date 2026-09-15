@@ -1,0 +1,31 @@
+{
+  "name": "Dashforge Midnight",
+  "sidebarColor": "#1B1F3B",
+  "accentColor": "#FFFFFF",
+  "dataColors": ["#4C6FFF", "#22C1C3", "#FDBB2D", "#F6416C", "#7B5CFF", "#00B8A9", "#F08A5D", "#3EC1D3"],
+  "background": "#FFFFFF",
+  "foreground": "#1B1F3B",
+  "tableAccent": "#4C6FFF",
+  "good": "#00B8A9",
+  "neutral": "#FDBB2D",
+  "bad": "#F6416C",
+  "maximum": "#1B1F3B",
+  "center": "#7B8CB5",
+  "minimum": "#DCE3F7",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{"show": true, "color": {"solid": {"color": "#FFFFFF"}}, "transparency": 0}],
+        "border": [{"show": true, "color": {"solid": {"color": "#E4E9F5"}}, "radius": 8}],
+        "title": [{"show": true, "fontColor": {"solid": {"color": "#1B1F3B"}}, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left"}],
+        "visualHeader": [{"show": false}]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [{"color": {"solid": {"color": "#1B1F3B"}}, "fontSize": 28, "fontFamily": "Segoe UI Semibold"}],
+        "categoryLabels": [{"color": {"solid": {"color": "#7B8CB5"}}, "fontSize": 10}]
+      }
+    }
+  }
+}
