@@ -32,10 +32,29 @@ def _load_file(path: str) -> dict:
         return json.load(fh)
 
 
+def _is_dark(color: str | None) -> bool:
+    """True if a #hex colour is dark enough for white nav text to read on it."""
+    if not isinstance(color, str) or not color.startswith("#"):
+        return False
+    h = color.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    if len(h) != 6:
+        return False
+    try:
+        r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    except ValueError:
+        return False
+    return (0.299 * r + 0.587 * g + 0.114 * b) < 130
+
+
 def get_theme(spec: str | None = None) -> dict:
     if spec and os.path.exists(spec):
         theme = _load_file(spec)
-        theme.setdefault("sidebarColor", "#1B1F3B")
+        # a bring-your-own / extracted theme rarely defines a sidebar colour — derive one from the
+        # theme's own dark brand colour so the nav is cohesive instead of a fixed default.
+        fg = theme.get("foreground") or theme.get("maximum")
+        theme.setdefault("sidebarColor", fg if _is_dark(fg) else "#1B1F3B")
         theme.setdefault("accentColor", "#FFFFFF")
         return theme
     key = (spec or _DEFAULT).lower()

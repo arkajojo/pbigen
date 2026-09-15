@@ -119,16 +119,23 @@ def _parse(raw: str, schema: Schema, baseline: Design) -> Design | None:
     for m in data.get("measures", []):
         if not isinstance(m, dict) or not m.get("name"):
             continue
+        kind = str(m.get("kind", "agg"))
+        agg = str(m.get("agg", "SUM")).upper()
+        col = m.get("column")
+        num, den = m.get("numerator"), m.get("denominator")
+        # Drop measures that reference columns which don't exist — otherwise the generated DAX is
+        # invalid and the visual errors in Power BI ("Something's wrong with one or more fields").
+        if kind == "ratio":
+            if num not in colnames or den not in colnames:
+                continue
+        elif agg in ("COUNT", "DISTINCTCOUNT"):
+            col = col if col in colnames else None      # count works with or without a column
+        elif col not in colnames:                        # SUM/AVERAGE/MIN/MAX need a real column
+            continue
         measures.append(Measure(
-            name=str(m["name"]),
-            kind=str(m.get("kind", "agg")),
-            column=m.get("column"),
-            agg=str(m.get("agg", "SUM")).upper(),
-            numerator=m.get("numerator"),
-            denominator=m.get("denominator"),
-            dimension=m.get("dimension"),
-            money=bool(m.get("money", False)),
-            percent=bool(m.get("percent", False)),
+            name=str(m["name"]), kind=kind, column=col, agg=agg,
+            numerator=num, denominator=den, dimension=m.get("dimension"),
+            money=bool(m.get("money", False)), percent=bool(m.get("percent", False)),
         ))
     if not measures:
         measures = baseline.measures
@@ -148,13 +155,17 @@ def _parse(raw: str, schema: Schema, baseline: Design) -> Design | None:
             cat = v.get("category") if v.get("category") in colnames else None
             ser = v.get("series") if v.get("series") in colnames else None
             ms = [m for m in (v.get("measures") or []) if m in measure_names]
+            cols = valid_cols(v.get("columns"))
+            # a visual with no valid measures and no columns would render empty/errored — drop it
+            if not ms and not cols:
+                continue
             visuals.append(Visual(
                 type=str(v["type"]),
                 title=str(v.get("title", "")),
                 measures=ms,
                 category=cat,
                 series=ser,
-                columns=valid_cols(v.get("columns")),
+                columns=cols,
                 x_measure=v.get("x_measure") if v.get("x_measure") in measure_names else None,
                 y_measure=v.get("y_measure") if v.get("y_measure") in measure_names else None,
                 size_measure=v.get("size_measure") if v.get("size_measure") in measure_names else None,

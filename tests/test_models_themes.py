@@ -73,6 +73,27 @@ def test_theme_file_with_bom_loads(tmp_path):
     assert get_theme(str(p))["name"] == "BomTheme"
 
 
+def test_llm_measures_referencing_missing_columns_are_dropped():
+    from pbigen.core.design import design as baseline_design
+    from pbigen.core.schema import Column, Schema
+    from pbigen.models.litellm_model import _parse
+
+    sch = Schema("orders", [Column("status", "string"), Column("num_of_item", "integer")])
+    llm = ('{"measures":[{"name":"Total Orders","agg":"COUNT"},'
+           '{"name":"Total Revenue","column":"revenue","agg":"SUM"},'
+           '{"name":"Total Items","column":"num_of_item","agg":"SUM"}],'
+           '"pages":[{"name":"Exec","visuals":['
+           '{"type":"card","measures":["Total Orders"]},'
+           '{"type":"card","measures":["Total Revenue"]},'
+           '{"type":"bar","category":"status","measures":["Total Items"]}]}]}')
+    d = _parse(llm, sch, baseline_design(sch, ""))
+    names = [m.name for m in d.measures]
+    assert "Total Revenue" not in names          # column 'revenue' doesn't exist -> dropped
+    assert {"Total Orders", "Total Items"} <= set(names)
+    # the card that referenced the dropped measure is gone (no empty/errored visual)
+    assert all("Total Revenue" not in v.measures for v in d.pages[0].visuals)
+
+
 def test_unknown_theme_raises():
     with pytest.raises(ValueError):
         get_theme("no-such-theme")

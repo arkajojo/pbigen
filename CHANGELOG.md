@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.3.1]
+
+### Fixed
+
+- **LLM-proposed measures that reference a non-existent column are now dropped** (and any visual left
+  empty by that is removed), so an LLM design can't produce cards that error with "Something's wrong
+  with one or more fields." COUNT measures still work with or without a column.
+- **`--logo` warns instead of silently skipping** when the image path doesn't exist.
+
+### Changed
+
+- **Bring-your-own / extracted themes get a cohesive nav colour** — when a theme JSON defines no
+  `sidebarColor`, pbigen derives it from the theme's own dark brand colour (`foreground`/`maximum`)
+  instead of a fixed default. (Set `sidebarColor`/`accentColor` in the theme to override.)
+
 ## [0.3.0]
 
 ### Added — replicate a report's design shell

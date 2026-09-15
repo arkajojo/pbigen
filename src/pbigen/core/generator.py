@@ -8,6 +8,7 @@ Author: Arka Gupta
 """
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 
@@ -54,6 +55,11 @@ def generate(
     """
     src = source if isinstance(source, Source) else get_source(source, **(source_config or {}))
     mdl = model if isinstance(model, Model) else get_model(model, **(model_config or {}))
+
+    if logo and not os.path.exists(logo):
+        import sys
+        print(f"pbigen: --logo file not found, skipping: {logo}", file=sys.stderr)
+        logo = None
 
     schema = src.schema_with_cardinality()
     design = mdl.design(schema, objective)
