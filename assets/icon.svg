@@ -1,0 +1,13 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="dashforge icon">
+  <defs>
+    <linearGradient id="tile" x1="8" y1="8" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2B2F6B"/>
+      <stop offset="1" stop-color="#4C6FFF"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#tile)"/>
+  <rect x="34" y="74" width="16" height="30" rx="4" fill="#22C1C3"/>
+  <rect x="56" y="56" width="16" height="48" rx="4" fill="#8FB0FF"/>
+  <rect x="78" y="38" width="16" height="66" rx="4" fill="#FFFFFF"/>
+  <circle cx="86" cy="30" r="6" fill="#FDBB2D"/>
+</svg>
