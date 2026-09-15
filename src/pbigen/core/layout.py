@@ -16,9 +16,9 @@ PAGE_W, PAGE_H = 1920, 1080
 SIDEBAR_W = 300
 LOGO_ZONE_H = 200
 TITLE_H = 84
-CARD_H = 128
-GAP = 16
-MARGIN = 20
+CARD_H = 140      # taller KPI cards read as executive panels
+GAP = 22          # more breathing room between visuals
+MARGIN = 28       # a touch more page padding
 
 
 def _is_wide(v: Visual) -> bool:

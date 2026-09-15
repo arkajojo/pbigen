@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.2.0]
+
+### Changed — executive aesthetics pass
+
+- **Light canvas** behind every page, so the white visuals read as raised, executive-style panels.
+- **Coloured accent bars** down the left edge of each KPI card (cycled from the theme palette) — the
+  modern KPI-card look.
+- **Richer built-in themes** (midnight / slate / aurora): big semibold KPI numbers with muted
+  category labels, white rounded cards with a soft drop shadow, refined title typography, softened
+  gridlines, tidier legends, and a proper donut inner radius.
+- **More breathing room** — taller KPI cards and larger gaps/margins.
+
+All output remains schema-valid against Microsoft's PBIR schemas and opens in Power BI Desktop; the
+report structure, custom-theme handling, DirectQuery/import, and every prior fix are unchanged.
+Custom themes still apply as before (structural polish — canvas, accent bars, spacing — is
+theme-independent, so a bring-your-own theme also benefits).
+
 ## [0.1.6]
 
 ### Fixed

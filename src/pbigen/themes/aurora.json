@@ -2,23 +2,61 @@
   "name": "Pbigen Aurora",
   "sidebarColor": "#0B3D2E",
   "accentColor": "#EAF9F0",
-  "dataColors": ["#06D6A0", "#118AB2", "#FFD166", "#EF476F", "#073B4C", "#8AC926", "#FF9F1C", "#5F0F40"],
+  "dataColors": ["#06D6A0", "#118AB2", "#FFD166", "#EF476F", "#3A66DB", "#8AC926", "#FF9F1C", "#5F0F40"],
   "background": "#FFFFFF",
   "foreground": "#0B3D2E",
   "tableAccent": "#06D6A0",
-  "good": "#06D6A0",
+  "good": "#12B76A",
   "neutral": "#FFD166",
   "bad": "#EF476F",
   "maximum": "#0B3D2E",
   "center": "#5F9C86",
   "minimum": "#EAF9F0",
+  "textClasses": {
+    "title": {"fontFace": "Segoe UI Semibold", "color": "#101828", "fontSize": 13},
+    "label": {"fontFace": "Segoe UI", "color": "#475467", "fontSize": 10},
+    "callout": {"fontFace": "Segoe UI Semibold", "color": "#101828", "fontSize": 34}
+  },
   "visualStyles": {
     "*": {
       "*": {
         "background": [{"show": true, "color": {"solid": {"color": "#FFFFFF"}}, "transparency": 0}],
-        "border": [{"show": true, "color": {"solid": {"color": "#DCEFE6"}}, "radius": 8}],
-        "title": [{"show": true, "fontColor": {"solid": {"color": "#0B3D2E"}}, "fontSize": 12, "fontFamily": "Segoe UI Semibold", "alignment": "left"}],
+        "border": [{"show": true, "color": {"solid": {"color": "#E6E9F2"}}, "radius": 12}],
+        "dropShadow": [{"show": true, "color": {"solid": {"color": "#101828"}}, "position": "Outer", "preset": "Custom", "shadowSpread": 1, "shadowBlur": 14, "angle": 90, "shadowDistance": 2, "transparency": 90}],
+        "title": [{"show": true, "fontColor": {"solid": {"color": "#101828"}}, "fontSize": 13, "fontFamily": "Segoe UI Semibold", "alignment": "left", "titleWrap": true}],
         "visualHeader": [{"show": false}]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [{"color": {"solid": {"color": "#101828"}}, "fontSize": 34, "fontFamily": "Segoe UI Semibold"}],
+        "categoryLabels": [{"show": true, "color": {"solid": {"color": "#667085"}}, "fontSize": 11, "fontFamily": "Segoe UI"}],
+        "wordWrap": [{"show": true}]
+      }
+    },
+    "lineChart": {
+      "*": {
+        "legend": [{"show": true, "position": "TopCenter", "labelColor": {"solid": {"color": "#475467"}}, "fontSize": 9}],
+        "valueAxis": [{"gridlineColor": {"solid": {"color": "#EEF1F6"}}, "labelColor": {"solid": {"color": "#667085"}}, "fontSize": 9}],
+        "categoryAxis": [{"labelColor": {"solid": {"color": "#667085"}}, "fontSize": 9, "showAxisTitle": false}]
+      }
+    },
+    "clusteredColumnChart": {
+      "*": {
+        "valueAxis": [{"gridlineColor": {"solid": {"color": "#EEF1F6"}}, "labelColor": {"solid": {"color": "#667085"}}, "fontSize": 9}],
+        "categoryAxis": [{"labelColor": {"solid": {"color": "#667085"}}, "fontSize": 9, "showAxisTitle": false}]
+      }
+    },
+    "clusteredBarChart": {
+      "*": {
+        "valueAxis": [{"gridlineColor": {"solid": {"color": "#EEF1F6"}}, "labelColor": {"solid": {"color": "#667085"}}, "fontSize": 9}],
+        "categoryAxis": [{"labelColor": {"solid": {"color": "#667085"}}, "fontSize": 9, "showAxisTitle": false}]
+      }
+    },
+    "donutChart": {
+      "*": {
+        "legend": [{"show": true, "position": "Right", "labelColor": {"solid": {"color": "#475467"}}, "fontSize": 9}],
+        "slices": [{"innerRadiusRatio": 62}]
       }
     }
   }

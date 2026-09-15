@@ -32,6 +32,9 @@ from .visuals import build_shape, build_textbox, build_visual, text_run
 _REPORT = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition"
 # a Power BI built-in monthly base theme the custom theme is layered on top of
 _BASE_THEME = "CY24SU10"
+# a light neutral canvas so white cards read as raised, executive-style panels
+_CANVAS = "#F2F3F7"
+_DEFAULT_DATA_COLORS = ["#4C6FFF", "#22C1C3", "#FDBB2D", "#F6416C", "#7B5CFF", "#00B8A9"]
 _SAFE = re.compile(r"[^0-9A-Za-z_-]+")
 
 
@@ -66,7 +69,8 @@ def write_project(design: Design, schema: Schema, power_query: str, out_dir: str
     _write_semantic_model(model_dir, schema, design, power_query, mode)
     theme_file = _write_theme(report_dir, theme)
     _write_report_shell(report_dir, defn, theme_file)
-    _write_pages(defn, design, schema, brand or schema.display_name, sidebar_color, accent)
+    data_colors = (theme or {}).get("dataColors") or _DEFAULT_DATA_COLORS
+    _write_pages(defn, design, schema, brand or schema.display_name, sidebar_color, accent, data_colors)
 
     pbip_path = os.path.join(root, f"{name}.pbip")
     _write_json(pbip_path, {
@@ -138,7 +142,7 @@ def _write_semantic_model(model_dir: str, schema: Schema, design: Design, power_
 
 # --------------------------------------------------------------------------- pages + visuals
 def _write_pages(defn: str, design: Design, schema: Schema, brand: str,
-                 sidebar_color: str, accent: str) -> None:
+                 sidebar_color: str, accent: str, data_colors: list[str]) -> None:
     pages_dir = os.path.join(defn, "pages")
     order: list[str] = []
     used: set[str] = set()
@@ -154,7 +158,7 @@ def _write_pages(defn: str, design: Design, schema: Schema, brand: str,
             "height": PAGE_H,
             "width": PAGE_W,
         })
-        _write_page_visuals(pages_dir, pid, page, schema, design, brand, sidebar_color, accent)
+        _write_page_visuals(pages_dir, pid, page, schema, design, brand, sidebar_color, accent, data_colors)
 
     _write_json(os.path.join(pages_dir, "pages.json"), {
         "$schema": f"{_REPORT}/pagesMetadata/1.0.0/schema.json",
@@ -164,7 +168,7 @@ def _write_pages(defn: str, design: Design, schema: Schema, brand: str,
 
 
 def _write_page_visuals(pages_dir: str, pid: str, page, schema: Schema, design: Design,
-                        brand: str, sidebar_color: str, accent: str) -> None:
+                        brand: str, sidebar_color: str, accent: str, data_colors: list[str]) -> None:
     vdir = os.path.join(pages_dir, pid, "visuals")
     table = schema.table
     tab = 0
@@ -174,23 +178,32 @@ def _write_page_visuals(pages_dir: str, pid: str, page, schema: Schema, design: 
         _write_json(os.path.join(vdir, obj["name"], "visual.json"), obj)
         tab += 1
 
-    # sidebar background (behind everything)
-    emit(build_shape(f"{pid}-nav", 0, 0, SIDEBAR_W, PAGE_H, 0, tab, sidebar_color))
+    # light canvas behind everything, so white cards read as raised panels
+    emit(build_shape(f"{pid}-canvas", 0, 0, PAGE_W, PAGE_H, 0, tab, _CANVAS))
+    # sidebar background
+    emit(build_shape(f"{pid}-nav", 0, 0, SIDEBAR_W, PAGE_H, 1, tab, sidebar_color))
     # brand strip — black text on a white card (readable regardless of the sidebar colour)
     emit(build_textbox(f"{pid}-brand", [text_run(brand, "20pt", bold=True, color="#000000")],
-                       20, 28, SIDEBAR_W - 40, LOGO_ZONE_H - 60, 1, tab,
+                       20, 28, SIDEBAR_W - 40, LOGO_ZONE_H - 60, 2, tab,
                        background="#FFFFFF", align="left"))
     # page title in the main area
     emit(build_textbox(f"{pid}-title", [text_run(page.name, "24pt", bold=True, color="#1B1F3B")],
-                       SIDEBAR_W + MARGIN, MARGIN, PAGE_W - SIDEBAR_W - 2 * MARGIN, TITLE_H, 1, tab))
+                       SIDEBAR_W + MARGIN, MARGIN, PAGE_W - SIDEBAR_W - 2 * MARGIN, TITLE_H, 2, tab))
 
     placed = pack(page, schema)
-    z = 2
+    z = 3
+    card_i = 0
     for i, v in enumerate(placed):
         obj = build_visual(v, table, f"{pid}-v{i:02d}", tab)
         obj["position"]["z"] = z
         z += 1
         emit(obj)
+        # a coloured left accent bar over each KPI card (brand-palette, cycled) — executive look
+        if v.type in ("card", "kpi"):
+            colour = data_colors[card_i % len(data_colors)]
+            card_i += 1
+            emit(build_shape(f"{pid}-a{i:02d}", v.x, v.y + 8, 6, max(8, v.h - 16), z, tab, colour))
+            z += 1
 
     # "how to use this report" note, pinned to the bottom of the sidebar
     if design.usage_notes:
