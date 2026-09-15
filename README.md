@@ -489,7 +489,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 | Guide | What's in it |
 |-------|--------------|
-| **[docs/testing.md](docs/testing.md)** | Self-serve verification for every source and model — offline check → universal 6-step → schema validation → the full BigQuery matrix → troubleshooting. **Start here to test it.** |
+| **[docs/recipes.md](docs/recipes.md)** | Copy-paste end-to-end recipes for **every** feature: offline, any warehouse, sampling, custom theme, logo + nav, replicate a `.pbix` shell, DirectQuery, LLM (any provider), local model, Python API, schema-check, open in Desktop. **Start here to build.** |
+| **[docs/testing.md](docs/testing.md)** | Self-serve verification for every source and model — offline check → universal 6-step → schema validation → the full BigQuery matrix → troubleshooting. **Start here to test.** |
 | **[docs/sources.md](docs/sources.md)** | Every connector: install, **authenticate** (with how to get credentials + IAM), configure, test, generate. |
 | **[docs/models.md](docs/models.md)** | Use any LLM: provider matrix (OpenAI, Anthropic, Gemini, Azure, Bedrock, local Ollama/vLLM) with env-var auth + examples. |
 | **[docs/themes.md](docs/themes.md)** | Built-in themes and bringing your own Power BI theme JSON. |
