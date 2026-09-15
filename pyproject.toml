@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pbigen"
-version = "0.1.4"
+version = "0.1.5"
 description = "Generate governed, version-controlled Power BI reports from any warehouse or lakehouse — from a table and a plain-language objective."
 readme = "README.md"
 requires-python = ">=3.9"

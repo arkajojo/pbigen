@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.1.5]
+
+### Fixed
+
+- **Custom theme files with a UTF-8 BOM now load.** Theme JSONs downloaded from the Power BI theme
+  gallery or exported on Windows often begin with a byte-order mark; the loader now reads them with
+  `utf-8-sig` instead of failing with "Unexpected UTF-8 BOM".
+- **Sidebar brand strip is now black text on a white card** — legible on any sidebar colour (the
+  earlier transparent approach left white text unreadable on light themes).
+
 ## [0.1.4]
 
 ### Fixed

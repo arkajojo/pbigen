@@ -4,6 +4,8 @@ Author: Arka Gupta
 """
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from pbigen.core.design import Visual
@@ -62,6 +64,13 @@ def test_container_title_shown_on_charts_hidden_on_textbox():
     tb = build_textbox("p0-title", [text_run("Executive Summary")], 0, 0, 100, 40, 1, 4)
     tb_title = tb["visual"]["visualContainerObjects"]["title"][0]["properties"]
     assert tb_title["show"]["expr"]["Literal"]["Value"] == "false"      # no empty white header on chrome
+
+
+def test_theme_file_with_bom_loads(tmp_path):
+    # gallery / Windows-exported theme JSONs often start with a UTF-8 BOM
+    p = tmp_path / "bom.json"
+    p.write_bytes(b"\xef\xbb\xbf" + json.dumps({"name": "BomTheme", "dataColors": ["#112233"]}).encode())
+    assert get_theme(str(p))["name"] == "BomTheme"
 
 
 def test_unknown_theme_raises():

@@ -27,7 +27,8 @@ def available_themes() -> list[str]:
 
 
 def _load_file(path: str) -> dict:
-    with open(path, encoding="utf-8") as fh:
+    # utf-8-sig tolerates a byte-order mark, which gallery / Windows-exported theme JSONs often carry.
+    with open(path, encoding="utf-8-sig") as fh:
         return json.load(fh)
 
 

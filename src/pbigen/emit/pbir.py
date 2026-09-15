@@ -171,9 +171,10 @@ def _write_page_visuals(pages_dir: str, pid: str, page, schema: Schema, design: 
 
     # sidebar background (behind everything)
     emit(build_shape(f"{pid}-nav", 0, 0, SIDEBAR_W, PAGE_H, 0, tab, sidebar_color))
-    # brand strip
-    emit(build_textbox(f"{pid}-brand", [text_run(brand, "20pt", bold=True, color=accent)],
-                       20, 28, SIDEBAR_W - 40, LOGO_ZONE_H - 60, 1, tab, align="left"))
+    # brand strip — black text on a white card (readable regardless of the sidebar colour)
+    emit(build_textbox(f"{pid}-brand", [text_run(brand, "20pt", bold=True, color="#000000")],
+                       20, 28, SIDEBAR_W - 40, LOGO_ZONE_H - 60, 1, tab,
+                       background="#FFFFFF", align="left"))
     # page title in the main area
     emit(build_textbox(f"{pid}-title", [text_run(page.name, "24pt", bold=True, color="#1B1F3B")],
                        SIDEBAR_W + MARGIN, MARGIN, PAGE_W - SIDEBAR_W - 2 * MARGIN, TITLE_H, 1, tab))
