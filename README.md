@@ -203,7 +203,7 @@ pip install "pbigen[lakehouse]" pyarrow
 python examples/generate_from_parquet.py     # builds a sample file and generates from it
 ```
 
-> **Testing it for real?** **[docs/testing.md](docs/testing.md)** is a self-serve guide for your whole
+> **Testing it for real?** **[docs/testing.md](https://github.com/arkajojo/pbigen/blob/main/docs/testing.md)** is a self-serve guide for your whole
 > team: how to install, **authenticate**, and verify every source and model — from the 30-second
 > offline check to a full BigQuery matrix (deterministic × LLM, built-in × custom theme) validated
 > against Microsoft's schemas.
@@ -215,7 +215,7 @@ python examples/generate_from_parquet.py     # builds a sample file and generate
 Every adapter implements the same read-only contract — **introspect** (columns + canonical types),
 **approx_distinct** (cardinality, to drive design), and **power_query** (the M the report uses to
 connect at refresh). Per-source **authentication**, config, and a test recipe live in
-**[docs/sources.md](docs/sources.md)**; the end-to-end verification guide is **[docs/testing.md](docs/testing.md)**.
+**[docs/sources.md](https://github.com/arkajojo/pbigen/blob/main/docs/sources.md)**; the end-to-end verification guide is **[docs/testing.md](https://github.com/arkajojo/pbigen/blob/main/docs/testing.md)**.
 
 | Cloud / family | Sources | Extra |
 |----------------|---------|-------|
@@ -233,7 +233,7 @@ pbigen test --source lakehouse --set uri=./sales.parquet fmt=parquet   # verify 
 Open table formats (Parquet, Apache Iceberg, Delta Lake) are read on local disk or any of the three
 clouds through a single DuckDB-powered adapter — no cluster required for introspection. For *report
 refresh*, raw Parquet is reachable via Power BI's storage connectors; Iceberg/Delta are best served
-through a Fabric Lakehouse or Databricks SQL endpoint (details in [docs/sources.md](docs/sources.md)).
+through a Fabric Lakehouse or Databricks SQL endpoint (details in [docs/sources.md](https://github.com/arkajojo/pbigen/blob/main/docs/sources.md)).
 
 <br>
 
@@ -260,7 +260,7 @@ pbigen.generate("bigquery", source_config={...},
 > validated against the live schema, and if the model is unreachable or returns something unusable,
 > pbigen falls back to the deterministic design so generation never hard-fails.
 
-More in **[docs/models.md](docs/models.md)**.
+More in **[docs/models.md](https://github.com/arkajojo/pbigen/blob/main/docs/models.md)**.
 
 <br>
 
@@ -278,7 +278,7 @@ pbigen.generate(..., theme="./corporate.json")    # your Power BI theme JSON, ap
 | `aurora` | Deep green sidebar, green/blue data colours |
 
 Your theme travels with the project as a registered custom theme. More in
-**[docs/themes.md](docs/themes.md)**.
+**[docs/themes.md](https://github.com/arkajojo/pbigen/blob/main/docs/themes.md)**.
 
 <br>
 
@@ -481,7 +481,7 @@ class MyModel(Model):
 pbigen.generate(..., model=MyModel())
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+See [CONTRIBUTING.md](https://github.com/arkajojo/pbigen/blob/main/CONTRIBUTING.md) for the full guide.
 
 <br>
 
@@ -489,14 +489,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 | Guide | What's in it |
 |-------|--------------|
-| **[docs/recipes.md](docs/recipes.md)** | Copy-paste end-to-end recipes for **every** feature: offline, any warehouse, sampling, custom theme, logo + nav, replicate a `.pbix` shell, DirectQuery, LLM (any provider), local model, Python API, schema-check, open in Desktop. **Start here to build.** |
-| **[docs/testing.md](docs/testing.md)** | Self-serve verification for every source and model — offline check → universal 6-step → schema validation → the full BigQuery matrix → troubleshooting. **Start here to test.** |
-| **[docs/sources.md](docs/sources.md)** | Every connector: install, **authenticate** (with how to get credentials + IAM), configure, test, generate. |
-| **[docs/models.md](docs/models.md)** | Use any LLM: provider matrix (OpenAI, Anthropic, Gemini, Azure, Bedrock, local Ollama/vLLM) with env-var auth + examples. |
-| **[docs/themes.md](docs/themes.md)** | Built-in themes and bringing your own Power BI theme JSON. |
-| **[docs/publishing.md](docs/publishing.md)** | Maintainer runbook: build, release to PyPI, and the tag-triggered Trusted-Publishing workflow. |
-| **[examples/](examples/)** | Runnable scripts: local Parquet, BigQuery, LLM-refined design, and the 4-combo BigQuery verification harness. |
-| **[CONTRIBUTING.md](CONTRIBUTING.md)** · **[CHANGELOG.md](CHANGELOG.md)** | How to contribute; release history. |
+| **[docs/recipes.md](https://github.com/arkajojo/pbigen/blob/main/docs/recipes.md)** | Copy-paste end-to-end recipes for **every** feature: offline, any warehouse, sampling, custom theme, logo + nav, replicate a `.pbix` shell, DirectQuery, LLM (any provider), local model, Python API, schema-check, open in Desktop. **Start here to build.** |
+| **[docs/testing.md](https://github.com/arkajojo/pbigen/blob/main/docs/testing.md)** | Self-serve verification for every source and model — offline check → universal 6-step → schema validation → the full BigQuery matrix → troubleshooting. **Start here to test.** |
+| **[docs/sources.md](https://github.com/arkajojo/pbigen/blob/main/docs/sources.md)** | Every connector: install, **authenticate** (with how to get credentials + IAM), configure, test, generate. |
+| **[docs/models.md](https://github.com/arkajojo/pbigen/blob/main/docs/models.md)** | Use any LLM: provider matrix (OpenAI, Anthropic, Gemini, Azure, Bedrock, local Ollama/vLLM) with env-var auth + examples. |
+| **[docs/themes.md](https://github.com/arkajojo/pbigen/blob/main/docs/themes.md)** | Built-in themes and bringing your own Power BI theme JSON. |
+| **[docs/publishing.md](https://github.com/arkajojo/pbigen/blob/main/docs/publishing.md)** | Maintainer runbook: build, release to PyPI, and the tag-triggered Trusted-Publishing workflow. |
+| **[examples/](https://github.com/arkajojo/pbigen/tree/main/examples)** | Runnable scripts: local Parquet, BigQuery, LLM-refined design, and the 4-combo BigQuery verification harness. |
+| **[CONTRIBUTING.md](https://github.com/arkajojo/pbigen/blob/main/CONTRIBUTING.md)** · **[CHANGELOG.md](https://github.com/arkajojo/pbigen/blob/main/CHANGELOG.md)** | How to contribute; release history. |
 
 <br>
 
@@ -533,12 +533,12 @@ is diffable, reviewable and CI-friendly rather than an opaque binary.
 ## Contributing
 
 Contributions are very welcome. Set up a dev environment, run `ruff` and `pytest` (the suite runs
-fully offline), and open a focused PR. See **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+fully offline), and open a focused PR. See **[CONTRIBUTING.md](https://github.com/arkajojo/pbigen/blob/main/CONTRIBUTING.md)**.
 
 <br>
 
 ## License
 
-MIT © [Arka Gupta](AUTHORS.md). See [LICENSE](LICENSE).
+MIT © [Arka Gupta](https://github.com/arkajojo/pbigen/blob/main/AUTHORS.md). See [LICENSE](https://github.com/arkajojo/pbigen/blob/main/LICENSE).
 
 <p align="center"><sub>Built by Arka Gupta.</sub></p>

@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.3.3]
+
+### Docs
+
+- **README links resolve on PyPI.** Relative links (`docs/…`, `CONTRIBUTING.md`, `LICENSE`, …) are
+  now absolute GitHub URLs, so they work on the PyPI/TestPyPI project pages (relative links there
+  404'd).
+- **Documentation website** — a MkDocs Material site (`mkdocs.yml` + `docs/index.md`) published to
+  GitHub Pages via `.github/workflows/docs.yml`, with a `docs` extra and a Documentation project URL.
+
 ## [0.3.2]
 
 ### Fixed

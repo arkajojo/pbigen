@@ -158,5 +158,5 @@ If a model can't be reached, pbigen falls back to the deterministic design and t
 
 ---
 
-See also: **[docs/sources.md](sources.md)** (per-source auth + config) · **[docs/models.md](models.md)**
-(every LLM provider) · the repo **[README](../README.md)**.
+See also: **[Sources](sources.md)** (per-source auth + config) · **[Models](models.md)**
+(every LLM provider) · **[Recipes](recipes.md)** · the [GitHub repo](https://github.com/arkajojo/pbigen).

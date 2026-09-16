@@ -1,0 +1,62 @@
+site_name: pbigen
+site_description: Generate world-class Power BI dashboards from any data source — automatically.
+site_url: https://arkajojo.github.io/pbigen/
+repo_url: https://github.com/arkajojo/pbigen
+repo_name: arkajojo/pbigen
+edit_uri: edit/main/docs/
+copyright: MIT © Arka Gupta
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.top
+    - navigation.sections
+    - navigation.tracking
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Recipes (cookbook): recipes.md
+  - Sources & authentication: sources.md
+  - Models (LLMs): models.md
+  - Themes, logo & shell: themes.md
+  - Testing: testing.md
+  - Publishing: publishing.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search

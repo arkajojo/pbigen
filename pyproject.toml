@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pbigen"
-version = "0.3.2"
+version = "0.3.3"
 description = "Generate governed, version-controlled Power BI reports from any warehouse or lakehouse — from a table and a plain-language objective."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -53,9 +53,11 @@ all = [
     "requests>=2.28", "litellm>=1.40",
 ]
 dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "build>=1.2", "twine>=5.0", "Pillow>=10.0"]
+docs = ["mkdocs-material>=9.5"]
 
 [project.urls]
 Homepage = "https://github.com/arkajojo/pbigen"
+Documentation = "https://arkajojo.github.io/pbigen/"
 Repository = "https://github.com/arkajojo/pbigen"
 Issues = "https://github.com/arkajojo/pbigen/issues"
 Changelog = "https://github.com/arkajojo/pbigen/blob/main/CHANGELOG.md"
