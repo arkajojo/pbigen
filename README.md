@@ -541,4 +541,10 @@ fully offline), and open a focused PR. See **[CONTRIBUTING.md](https://github.co
 
 MIT © [Arka Gupta](https://github.com/arkajojo/pbigen/blob/main/AUTHORS.md). See [LICENSE](https://github.com/arkajojo/pbigen/blob/main/LICENSE).
 
-<p align="center"><sub>Built by Arka Gupta.</sub></p>
+## Disclaimer
+
+pbigen is an **independent personal open-source project** by Arka Gupta. It is developed on personal
+time and equipment, uses no employer code, data, credentials, or systems, and is **not affiliated
+with, sponsored by, or endorsed by any employer**. All views and work here are the author's own.
+
+<p align="center"><sub>Built by Arka Gupta · independent personal project.</sub></p>

@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.3.4]
+
+### Docs
+
+- Added an **independent-project disclaimer** to the README and `AUTHORS.md`: pbigen is a personal
+  open-source project, developed on personal time/equipment, using no employer code/data/systems,
+  and is not affiliated with or endorsed by any employer.
+
 ## [0.3.3]
 
 ### Docs
