@@ -1,63 +1,99 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/arkajojo/pbigen/main/assets/logo.svg" alt="pbigen" width="420">
-</p>
+---
+hide:
+  - navigation
+  - toc
+---
 
-# pbigen — Power BI dashboards from any data source
+<div class="pbigen-hero" markdown>
 
-**pbigen** points at a table or view, reads its schema, reasons about the *shape* of the data (types
-and cardinality), and writes a ready-to-open Power BI project — a navigation sidebar with your brand
-and filters, KPI cards, data-appropriate charts, a detail table, and usage notes — laid out cleanly,
-every time. No hand-built templates, no copy-pasting M queries.
+![pbigen](https://raw.githubusercontent.com/arkajojo/pbigen/main/assets/logo.svg)
 
-The output is a standard, version-controllable **PBIP** project (PBIR report + TMDL semantic model)
-that opens directly in Power BI Desktop.
+<div class="headline">World-class Power BI dashboards, generated from any data source.</div>
+
+<div class="tagline">Point pbigen at a table. It reads the schema, reasons about the shape of the
+data, and writes a clean, ready-to-open Power BI project — deterministically, or refined by any LLM.
+Free, local, open source.</div>
+
+<div class="cta" markdown>
+[Get started](recipes.md){ .md-button .md-button--primary }
+[Why pbigen?](why.md){ .md-button }
+[Browse the recipes](recipes.md){ .md-button }
+</div>
+
+<div class="pills">16 data sources · deterministic or any LLM · MIT · no cloud capacity</div>
+
+</div>
+
+---
 
 ## Install
 
 ```bash
-pip install pbigen                 # core
-pip install "pbigen[bigquery]"     # + a source driver (bigquery, snowflake, lakehouse, …)
+pip install pbigen                 # core (dependency-light)
+pip install "pbigen[bigquery]"     # + one source driver: bigquery, snowflake, lakehouse, …
 pip install "pbigen[llm]"          # + optional LLM-refined design
 ```
 
-## 60-second start
+## 60 seconds, no cloud account
 
 ```bash
-# offline, no cloud account — build a sample file and generate from it
 pip install "pbigen[lakehouse]" pyarrow
 python -c "import pyarrow as pa,pyarrow.parquet as pq,random,datetime as d; r=random.Random(1); \
 pq.write_table(pa.table({'order_date':[d.date(2024,1,1)+d.timedelta(days=r.randint(0,540)) for _ in range(500)],\
-'region':[r.choice(['N','S','E','W']) for _ in range(500)],'revenue':[round(r.uniform(50,5000),2) for _ in range(500)]}),'orders.parquet')"
-pbigen generate --source parquet --set uri=orders.parquet --objective "Sales overview" --theme midnight --out out
-```
-Then open `out/Orders/Orders.pbip` in Power BI Desktop (enable the PBIR preview once — see
-[Recipes](recipes.md#12-open-it-in-power-bi-desktop)).
+'region':[r.choice(['North','South','East','West']) for _ in range(500)],\
+'status':[r.choice(['New','Shipped','Returned']) for _ in range(500)],\
+'revenue':[round(r.uniform(50,5000),2) for _ in range(500)]}),'orders.parquet')"
 
-## Where to go next
+pbigen generate --source parquet --set uri=orders.parquet \
+  --objective "Sales overview by region and status over time" --theme midnight --out out
+```
+
+Open `out/Orders/Orders.pbip` in Power BI Desktop (enable the PBIR preview once — see
+[Recipes → Open in Desktop](recipes.md#12-open-it-in-power-bi-desktop)).
+
+---
+
+## What you can do
 
 <div class="grid cards" markdown>
 
-- :material-book-open-variant: **[Recipes (cookbook)](recipes.md)** — copy-paste examples for every
-  feature: any warehouse, sampling, custom theme, logo + nav, replicate a `.pbix` shell, DirectQuery,
-  any LLM, local model, Python API. **Start here to build.**
-- :material-database: **[Sources & authentication](sources.md)** — every connector: install,
-  authenticate (credentials + IAM), configure, test.
-- :material-robot: **[Models](models.md)** — deterministic by default; any LLM (OpenAI, Anthropic,
-  Gemini, Azure, Bedrock, local Ollama) with env-var auth.
-- :material-palette: **[Themes, logo & shell](themes.md)** — built-ins, bring-your-own theme,
-  `sidebarColor`/`accentColor`, logo, nav side, and replicating a shared report's shell.
-- :material-check-decagram: **[Testing](testing.md)** — the self-serve verification harness.
-- :material-package-variant: **[Publishing](publishing.md)** — the maintainer/release runbook.
+- :material-database-search: **Connect anything**
+  BigQuery/BigLake/Omni, Snowflake, Redshift, Synapse/Fabric, Databricks, ClickHouse, Postgres,
+  Athena, a Parquet/Iceberg/Delta lake on GCS/S3/ADLS, or a Cube semantic layer.
+  [Sources & auth →](sources.md)
+
+- :material-brain: **Deterministic or LLM design**
+  A reproducible, cardinality-aware engine by default (no key, no network); optionally let any LLM
+  refine it — metadata only. [Deterministic vs LLM →](deterministic-vs-llm.md)
+
+- :material-palette-swatch: **Match any house style**
+  Built-in executive themes, bring-your-own theme JSON, a logo, left/right nav — or
+  **extract the theme + logo from a shared `.pbix`** and pour your data into that shell.
+  [Themes, logo & shell →](themes.md)
+
+- :material-cog-play: **Controls that matter**
+  Import vs DirectQuery, `row_limit` sampling for huge tables, and a clean Python API + CLI.
+  [Recipes →](recipes.md)
+
+- :material-shield-check: **Safe & portable**
+  Read-only, metadata-only, standards-based **PBIP** output that validates against Microsoft's
+  schemas and opens in Desktop. Version-control it like code.
+
+- :material-flask: **Test everything**
+  A self-serve verification harness — offline check, per-source, schema validation, and the full
+  matrix. [Testing →](testing.md)
 
 </div>
 
-## What makes it different
+---
 
-- **Portable & free** — native Power BI files you own, generated locally or in CI. No Fabric capacity,
-  no SaaS, no lock-in.
-- **Metadata-only & safe** — sources are read-only and introspection-only; no rows are read to design
-  the report (and only metadata is ever sent to an optional LLM).
-- **Deterministic by default** — reproducible, cardinality-aware design with **no key and no network**;
-  an LLM is optional.
+## Why not just use Copilot or an agentic BI tool?
 
-MIT-licensed · [GitHub](https://github.com/arkajojo/pbigen) · [PyPI](https://pypi.org/project/pbigen/)
+Most AI dashboard tools are **cloud services that build inside their own surface** and cost per seat
+or per capacity. pbigen is a **small open-source library** that produces **portable Power BI files you
+own**, on your machine, for free — deterministically if you want, with **no data leaving your
+environment**. See the full breakdown: [**Why pbigen →**](why.md)
+
+---
+
+MIT © Arka Gupta · [GitHub](https://github.com/arkajojo/pbigen) · [PyPI](https://pypi.org/project/pbigen/)

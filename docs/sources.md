@@ -90,6 +90,8 @@ table and `USAGE` on the schema. Network: the host must be reachable (VPC/SG/all
 **Configure:** `table` · optional `host` `port` (5439) `database` (dev) `schema` (public) `user` `password`.
 ```bash
 pbigen test --source redshift --set table=orders database=analytics schema=sales
+pbigen generate --source redshift --set table=orders database=analytics schema=sales \
+  --objective "Orders overview by segment over time" --theme midnight --out out
 ```
 
 ## Athena — kind `athena` · extra `pbigen[athena]`
@@ -111,6 +113,9 @@ export ATHENA_S3_STAGING_DIR=s3://my-athena-results/     # where Athena writes q
 ```bash
 pbigen test --source athena --set table=orders database=analytics \
   s3_staging_dir=s3://my-athena-results/ region=us-east-1
+pbigen generate --source athena --set table=orders database=analytics \
+  s3_staging_dir=s3://my-athena-results/ region=us-east-1 \
+  --objective "Orders overview over time" --theme slate --out out
 ```
 
 ---
@@ -142,6 +147,8 @@ params (e.g. an `Authentication=…` option in `driver=`) — SQL auth is the qu
 **Configure:** `table` · optional `server` `database` `schema` (dbo) `user` `password` `driver`.
 ```bash
 pbigen test --source synapse --set table=orders schema=dbo
+pbigen generate --source synapse --set table=orders schema=dbo \
+  --objective "Orders overview over time" --theme midnight --out out
 ```
 
 ## Databricks — kind `databricks` · extra `pbigen[databricks]`
@@ -159,6 +166,8 @@ export DATABRICKS_TOKEN=dapi…
 **Configure:** `table` · optional `host` `http_path` `token` `catalog` (hive_metastore) `schema` (default).
 ```bash
 pbigen test --source databricks --set table=orders catalog=main schema=sales
+pbigen generate --source databricks --set table=orders catalog=main schema=sales \
+  --objective "Orders overview over time" --theme midnight --out out
 ```
 
 ---
@@ -181,6 +190,8 @@ The role needs `USAGE` on the warehouse/database/schema and `SELECT` on the tabl
 **Configure:** `table` · optional `account` `warehouse` `database` `schema` (PUBLIC) `user` `password` `role`.
 ```bash
 pbigen test --source snowflake --set table=ORDERS database=ANALYTICS schema=SALES
+pbigen generate --source snowflake --set table=ORDERS database=ANALYTICS schema=SALES \
+  --objective "Sales performance by region and product" --theme midnight --out out
 ```
 
 ## PostgreSQL — kind `postgres` · extra `pbigen[postgres]`
@@ -193,6 +204,8 @@ export PGPASSWORD=…
 **Configure:** `table` · optional `host` (localhost) `port` (5432) `database` (postgres) `schema` (public) `user` `password`.
 ```bash
 pbigen test --source postgres --set table=orders host=db.internal database=analytics schema=sales
+pbigen generate --source postgres --set table=orders host=db.internal database=analytics schema=sales \
+  --objective "Orders overview over time" --theme aurora --out out
 ```
 
 ## ClickHouse — kind `clickhouse` · extra `pbigen[clickhouse]`
@@ -206,6 +219,8 @@ export CLICKHOUSE_PASSWORD=…
 **Configure:** `table` · optional `host` `port` (8443) `database` (default) `user` `password` `secure` (true).
 ```bash
 pbigen test --source clickhouse --set table=orders database=analytics port=8443 secure=true
+pbigen generate --source clickhouse --set table=orders database=analytics port=8443 secure=true \
+  --objective "Orders overview over time" --theme midnight --out out
 ```
 
 ---
@@ -263,6 +278,8 @@ export CUBE_SQL_USER=…   CUBE_SQL_PASSWORD=…
 `sql_database` (cube) `sql_user` `sql_password`.
 ```bash
 pbigen test --source cube --set cube=Orders
+pbigen generate --source cube --set cube=Orders \
+  --objective "Orders overview from the semantic layer" --theme midnight --out out
 ```
 
 ---

@@ -8,6 +8,9 @@ copyright: MIT © Arka Gupta
 
 theme:
   name: material
+  font:
+    text: Inter
+    code: JetBrains Mono
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -36,12 +39,17 @@ theme:
 
 nav:
   - Home: index.md
+  - Why pbigen: why.md
   - Recipes (cookbook): recipes.md
   - Sources & authentication: sources.md
+  - Deterministic vs LLM: deterministic-vs-llm.md
   - Models (LLMs): models.md
   - Themes, logo & shell: themes.md
   - Testing: testing.md
   - Publishing: publishing.md
+
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
   - admonition
