@@ -1,0 +1,123 @@
+/* pbigen docs — bigger, cleaner typography with a modern hero (raft.build-inspired) */
+
+:root {
+  --md-text-font: "Inter";
+  --pbigen-ink: #0f1226;
+}
+
+/* larger, more readable body type */
+.md-typeset {
+  font-size: 1.04rem;
+  line-height: 1.75;
+}
+
+.md-typeset h1 {
+  font-size: 2.7rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin: 0 0 0.6em;
+}
+
+.md-typeset h2 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 2.4rem;
+  padding-top: 0.4rem;
+}
+
+.md-typeset h3 {
+  font-size: 1.32rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.md-typeset p,
+.md-typeset li {
+  font-size: 1.04rem;
+}
+
+/* code a touch larger and softer */
+.md-typeset code,
+.md-typeset pre > code {
+  font-size: 0.92em;
+}
+.md-typeset pre > code {
+  border-radius: 12px;
+}
+
+/* buttons: rounder, bolder, roomier */
+.md-typeset .md-button {
+  border-radius: 12px;
+  font-weight: 650;
+  padding: 0.55em 1.2em;
+  font-size: 1rem;
+}
+
+/* feature cards */
+.md-typeset .grid.cards > :is(ul, ol) > li,
+.md-typeset .grid.cards > .card,
+.md-typeset .grid > .card {
+  border-radius: 16px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.md-typeset .grid.cards > :is(ul, ol) > li:hover {
+  box-shadow: 0 12px 30px rgba(16, 24, 40, 0.10);
+  transform: translateY(-2px);
+}
+
+/* comparison tables: readable, roomy */
+.md-typeset table:not([class]) {
+  font-size: 0.96rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.md-typeset table:not([class]) th {
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+
+/* ---------------- hero ---------------- */
+.pbigen-hero {
+  text-align: center;
+  padding: 2.4rem 0 1.2rem;
+}
+.pbigen-hero img {
+  width: 340px;
+  max-width: 80%;
+}
+.pbigen-hero .headline {
+  font-size: 3.1rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  margin: 1.2rem auto 0.6rem;
+  max-width: 22ch;
+}
+.pbigen-hero .tagline {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--md-default-fg-color--light);
+  max-width: 44rem;
+  margin: 0 auto 1.6rem;
+}
+.pbigen-hero .cta {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+.pbigen-hero .pills {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.98rem;
+  margin-top: 0.6rem;
+}
+
+@media screen and (max-width: 60em) {
+  .md-typeset h1 { font-size: 2.1rem; }
+  .pbigen-hero .headline { font-size: 2.2rem; }
+  .pbigen-hero .tagline { font-size: 1.15rem; }
+}
