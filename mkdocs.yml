@@ -1,5 +1,5 @@
 site_name: pbigen
-site_description: Generate world-class Power BI dashboards from any data source — automatically.
+site_description: Your report's design, your data's story — Power BI dashboards generated from any data source.
 site_url: https://arkajojo.github.io/pbigen/
 repo_url: https://github.com/arkajojo/pbigen
 repo_name: arkajojo/pbigen
@@ -41,8 +41,9 @@ nav:
   - Home: index.md
   - Why pbigen: why.md
   - Recipes (cookbook): recipes.md
+  - Template packs (.pbix → design): templates.md
+  - The AI design pipeline: deterministic-vs-llm.md
   - Sources & authentication: sources.md
-  - Deterministic vs LLM: deterministic-vs-llm.md
   - Models (LLMs): models.md
   - Themes, logo & shell: themes.md
   - Testing: testing.md

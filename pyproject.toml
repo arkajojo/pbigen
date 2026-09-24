@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pbigen"
-version = "0.3.4"
-description = "Generate governed, version-controlled Power BI reports from any warehouse or lakehouse — from a table and a plain-language objective."
+version = "0.4.0"
+description = "Generate executive Power BI dashboards from any data source — in the design of a .pbix you already have, with an AI pipeline that reasons from business context to a structured story."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -14,7 +14,7 @@ maintainers = [{ name = "Arka Gupta", email = "arka.jojo@gmail.com" }]
 keywords = [
     "power-bi", "pbir", "pbip", "dashboards-as-code", "business-intelligence",
     "bigquery", "snowflake", "redshift", "databricks", "iceberg", "delta-lake",
-    "analytics-engineering", "data-visualization", "llm",
+    "analytics-engineering", "data-visualization", "llm", "pbix", "dashboard-design", "data-storytelling",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

@@ -24,7 +24,7 @@ from ..core.schema import (
     Column,
     Schema,
 )
-from .base import Source
+from .base import Source, profile_via_sql
 
 
 def _canonical(sa_type) -> str:
@@ -111,6 +111,19 @@ class SqlSource(Source):
             return {c: int(row[i]) for i, c in enumerate(columns) if row[i] is not None}
         except Exception:  # noqa: BLE001 - cardinality is best-effort, never fatal
             return {}
+
+    def profile(self, schema: Schema) -> dict[str, dict]:
+        from sqlalchemy import text
+
+        def run(sql: str):
+            with self._get_engine().connect() as conn:
+                return conn.execute(text(sql)).fetchall()
+
+        qual = self._qualified()
+        return profile_via_sql(run, qual, self._q, schema, lambda col: self._top_values_sql(col, qual))
+
+    def _top_values_sql(self, col: str, qual: str) -> str:
+        return f"SELECT {col}, COUNT(*) AS n FROM {qual} GROUP BY {col} ORDER BY n DESC LIMIT 5"
 
     def power_query(self) -> str:
         raise NotImplementedError

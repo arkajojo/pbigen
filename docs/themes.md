@@ -70,29 +70,24 @@ pbigen generate ... --logo ./assets/logo.png    # a logo image in the nav sideba
 - `--logo` copies the image into the report's registered resources and binds it as an image visual;
   it replaces the text brand strip. If the path doesn't exist, pbigen warns and skips it.
 
-## Replicate a shared report's shell (`extract-template`)
+## Reuse a whole report's design — template packs
 
-Reuse the **look** of a report someone shares as a `.pbix` — its theme, colours, fonts, logo — and
-pour **your own data** into it:
+A theme only carries colours, fonts and visual-style defaults. To reuse a report's *entire* look —
+canvas, background, sidebar and header chrome, logo, title font and per-visual formatting — compile
+it into a **template pack**:
 
 ```bash
-pbigen extract-template their_report.pbix --out template
-#   template/theme.json          -> their custom theme (if any)
-#   template/assets/<logo>.png    -> their logo / background images
-
-pbigen generate --source bigquery --set project=P dataset=D table=T \
-  --theme template/theme.json --logo template/assets/<logo>.png --nav right --out out
+pbigen template build their_report.pbix --out brand_pack
+pbigen generate --source bigquery --set project=P dataset=D table=T --template brand_pack --out out
 ```
 
-The **theme + logo + nav layout** are matched; your **charts follow your data** (not theirs). If the
-shared report used only a built-in theme there's no custom `theme.json` to extract — `--nav`/`--logo`
-+ a gallery theme still match the shell. For an *exact* clone of the same report on the same data,
-use Power BI Desktop's **File → Save as → `.pbip`** — pbigen reuses the shell, it doesn't clone a
-specific report.
+See [Template packs](templates.md). (The older `pbigen extract-template` still works and extracts
+only the theme + images.)
 
 ## What the layout always gives you
 
-Regardless of theme, every page gets: a navigation sidebar (brand/logo, stacked filters, a "how to
-use this report" note), a light canvas, a KPI card row with coloured accent bars, and charts/tables
-packed by footprint. The theme decides how it *looks*; the shell flags decide *where* the nav and
+In pbigen's own shell (no template), every page gets: a navigation sidebar (brand/logo, stacked
+filters, a "how to use this report" note), a light canvas, a header with the page title and its
+headline question, a KPI band with coloured accent bars and period-over-period deltas, and a
+12-column story grid (hero + side, halves, thirds, full width). The theme decides how it *looks*; the shell flags decide *where* the nav and
 logo go.

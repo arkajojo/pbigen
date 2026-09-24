@@ -22,7 +22,7 @@ from ..core.schema import (
     Column,
     Schema,
 )
-from .base import Source
+from .base import Source, profile_via_sql
 
 _TYPE_MAP = {
     "STRING": STRING, "BYTES": STRING, "JSON": STRING, "GEOGRAPHY": STRING,
@@ -71,6 +71,16 @@ class BigQuerySource(Source):
             return {c: int(row[i]) for i, c in enumerate(columns) if row[i] is not None}
         except Exception:  # noqa: BLE001 - cardinality is best-effort
             return {}
+
+    def profile(self, schema: Schema) -> dict[str, dict]:
+        qual = f"`{self.project}`.{self.dataset}.`{self.table}`"
+
+        def run(sql: str):
+            return [tuple(r.values()) for r in self._get_client().query(sql).result()]
+
+        return profile_via_sql(
+            run, qual, lambda c: f"`{c}`", schema,
+            lambda col: f"SELECT {col}, COUNT(*) AS n FROM {qual} GROUP BY 1 ORDER BY n DESC LIMIT 5")
 
     def power_query(self) -> str:
         # UseStorageApi=false falls back to the REST API, so refresh works on networks that block

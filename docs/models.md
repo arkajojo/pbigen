@@ -76,29 +76,38 @@ pbigen.generate("parquet", source_config={"uri": "sales.parquet"},
 ```python
 pbigen.generate("bigquery", source_config={…},
                 model="gpt-4o-mini",
-                model_config={"api_key": "sk-…", "temperature": 0.1, "max_tokens": 4000})
+                model_config={"api_key": "sk-…", "temperature": 0.2, "max_tokens": 12000})
 ```
 
 ### How to tell the model actually ran
 
 `GenerateResult.model_name` (Python) and the CLI summary report the backend used:
 `deterministic` vs. e.g. `litellm:gpt-4o-mini`. With a model, the generated **pages/visuals differ**
-from the deterministic run — that's the model reshaping the design. If a run silently falls back
-(bad key, no network), you'll see `deterministic` even though you passed `--model`.
+from the deterministic run, and `DESIGN.md` lists each pipeline stage with its status. If no valid
+design came back (bad key, no network), the summary says `deterministic (fallback — …)`.
+
+## Web research
+
+`--research web` lets the research stage search the web and cite sources. It is used when the
+provider supports it through LiteLLM — OpenAI search models / GPT-5 (`web_search_options`),
+Anthropic Claude (the web-search tool) and Gemini (Google Search grounding). `pbigen doctor --model
+<id>` tells you whether it is available; otherwise the stage falls back to the built-in playbooks
+automatically and `DESIGN.md` records `built-in knowledge (web unavailable)`.
 
 ## Writing your own model
 
-Implement one method and hand pbigen an instance (Python API):
+Subclass `Model` and return a `Design`. The easiest way is to reuse the staged pipeline with your
+own transport — any function that takes a system and a user prompt and returns JSON text:
+
 ```python
+from pbigen.ai.pipeline import DesignPipeline, DesignRequest
 from pbigen.models.base import Model
-from pbigen.core.design import design as deterministic
 
 class MyModel(Model):
     name = "my-model"
-    def design(self, schema, objective):
-        base = deterministic(schema, objective)   # a solid starting point
-        # …refine and return a Design…
-        return base
+    def design(self, schema, objective, request=None):
+        complete = lambda system, user, web=False: my_llm_call(system, user)
+        return DesignPipeline(complete, self.name).run(schema, request or DesignRequest(objective))
 
 pbigen.generate("bigquery", source_config={…}, model=MyModel())
 ```

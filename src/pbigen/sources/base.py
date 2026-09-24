@@ -55,6 +55,12 @@ class Source(abc.ABC):
         except Exception as exc:  # noqa: BLE001 - surface any driver/auth error verbatim
             return ConnectionTest(False, f"{self.kind}: {type(exc).__name__}: {exc}")
 
+    def profile(self, schema: Schema) -> dict[str, dict]:
+        """Aggregate value profile (min/max/avg, date range, top values) — opt-in via ``--profile``.
+
+        Best-effort; adapters that can't profile return ``{}``. Never returns row-level data."""
+        return {}
+
     def schema_with_cardinality(self) -> Schema:
         """Introspect and merge distinct counts in one step (used by the generator)."""
         schema = self.introspect()
@@ -62,3 +68,47 @@ class Source(abc.ABC):
         candidates = [c.name for c in schema.columns if c.dtype in ("string", "date", "datetime", "boolean", "integer")]
         counts = self.approx_distinct(candidates[:24]) if candidates else {}
         return schema.with_cardinality(counts)
+
+
+def profile_targets(schema: Schema, limit: int = 24) -> tuple[list[str], list[str], list[str]]:
+    """(numeric, date, low-cardinality category) columns worth profiling."""
+    num = [c.name for c in schema.source_columns() if c.is_numeric][:limit]
+    dates = [c.name for c in schema.source_columns() if c.dtype in ("date", "datetime")][:4]
+    cats = [c.name for c in schema.source_columns()
+            if c.dtype == "string" and c.cardinality is not None and c.cardinality <= 50][:10]
+    return num, dates, cats
+
+
+def profile_via_sql(run, qualified: str, q, schema: Schema, top_sql) -> dict[str, dict]:
+    """Generic SQL profiler. ``run(sql) -> list[tuple]``; ``q`` quotes an identifier;
+    ``top_sql(col_sql) -> str`` returns a top-5 values query for one column."""
+    num, dates, cats = profile_targets(schema)
+    out: dict[str, dict] = {}
+    parts, keys = [], []
+    for c in num:
+        parts += [f"MIN({q(c)})", f"MAX({q(c)})", f"AVG({q(c)})"]
+        keys.append((c, ("min", "max", "avg")))
+    for c in dates:
+        parts += [f"MIN({q(c)})", f"MAX({q(c)})"]
+        keys.append((c, ("min", "max")))
+    if parts:
+        try:
+            row = run(f"SELECT {', '.join(parts)} FROM {qualified}")[0]
+            i = 0
+            for c, fields in keys:
+                prof = {}
+                for f in fields:
+                    v = row[i]
+                    i += 1
+                    if v is not None:
+                        prof[f] = round(v, 4) if isinstance(v, float) else (v if isinstance(v, (int, str)) else str(v))
+                out[c] = prof
+        except Exception:  # noqa: BLE001 - profiling is best-effort
+            pass
+    for c in cats:
+        try:
+            rows = run(top_sql(q(c)))
+            out.setdefault(c, {})["top_values"] = [str(r[0]) for r in rows[:5]]
+        except Exception:  # noqa: BLE001
+            continue
+    return out

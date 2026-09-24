@@ -30,8 +30,8 @@ def test_classify_buckets_columns():
 
 def test_propose_measures_marks_money():
     measures = {m.name: m for m in propose_measures(_schema())}
-    assert "Record Count" in measures                    # always leads with a guaranteed-populated KPI
-    assert measures["Record Count"].agg == "COUNT"
+    assert "Orders" in measures                          # volume KPI named after the grain
+    assert measures["Orders"].agg == "COUNT"
     assert any(m.money for m in measures.values())       # revenue is money
     # the additive numerics are summed
     assert all(m.agg == "SUM" for m in measures.values() if m.column and m.name.startswith("Total"))
@@ -63,9 +63,12 @@ def test_design_builds_narrative_pages():
 def test_low_cardinality_gets_donut_high_gets_bar():
     d = design(_schema())
     exec_page = d.pages[0]
-    breakdowns = {v.category: v.type for v in exec_page.visuals if v.category and v.type in ("donut", "bar")}
-    # region (4 distinct) -> donut; if a higher-cardinality dim were charted it would be a bar
-    assert breakdowns.get("region") == "donut"
+    donuts = [v for v in exec_page.visuals if v.type == "donut"]
+    assert donuts, "the smallest dimension should get a part-to-whole donut"
+    cards = {"region": 4, "product": 3}
+    assert all(cards.get(v.category, 99) <= 6 for v in donuts)   # donuts only for <=6 slices
+    bars = [v for v in exec_page.visuals if v.type == "bar"]
+    assert bars and all(v.sort_desc for v in bars)                # ranked bars, high to low
 
 
 def test_date_is_not_a_dropdown_slicer():

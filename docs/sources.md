@@ -18,7 +18,7 @@ pip install "pbigen[<extra>]"          # 1. install just the driver you need
 pbigen test    --source <kind> --set <key=value ...>     # 3. verify connectivity + introspection
 pbigen generate --source <kind> --set <key=value ...> \  # 4. generate (deterministic by default)
   --theme midnight --out out
-# 5. add a model to let an LLM refine the design (optional): --model <id>   (see docs/models.md)
+# 5. add a model to run the AI design pipeline (optional): --model <id>   (see docs/models.md)
 # 6. open out/<name>/<name>.pbip in Power BI Desktop (enable the PBIR preview) and Refresh
 ```
 

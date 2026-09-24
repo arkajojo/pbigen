@@ -16,15 +16,16 @@ from __future__ import annotations
 
 import abc
 
+from ..ai.pipeline import DesignRequest
 from ..core.design import Design
 from ..core.schema import Schema
 
 
 class Model(abc.ABC):
-    """Produces a :class:`Design` from a schema and an objective."""
+    """Produces a :class:`Design` from a schema and a :class:`DesignRequest`."""
 
     name: str = "model"
 
     @abc.abstractmethod
-    def design(self, schema: Schema, objective: str) -> Design:
-        """Return a :class:`Design` (pages, visuals, measures, usage notes)."""
+    def design(self, schema: Schema, objective: str, request: DesignRequest | None = None) -> Design:
+        """Return a :class:`Design` (pages, visuals, measures, usage notes, reasoning brief)."""

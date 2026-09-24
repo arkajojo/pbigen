@@ -13,7 +13,7 @@ Nothing here mutates your data. Sources are **read-only** and introspect **metad
 
 ```bash
 pip install "pbigen[<source-extra>]"     # e.g. pbigen[bigquery] — see docs/sources.md for the extra
-pip install "pbigen[llm]"                # only if you want an LLM-refined design
+pip install "pbigen[llm]"                # only if you want the AI design pipeline
 pip install jsonschema referencing       # only for the optional schema-validation step below
 ```
 

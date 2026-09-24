@@ -67,16 +67,17 @@ pbigen generate --source bigquery --set project=P dataset=D table=T \
   --theme midnight --logo ./assets/company_logo.png --nav right --out out --name RightNavLogo
 ```
 
-## 6. Replicate a shared report's shell (theme + logo + nav), your data
+## 6. Use a report you like as the design (template pack)
 
 ```bash
-pbigen extract-template ~/Downloads/their_report.pbix --out template
-# -> template/theme.json  and  template/assets/<logo>.png   (+ a suggested command)
+pbigen template build ~/Downloads/company_standard.pbix --out brand_pack
+pbigen template show brand_pack            # canvas, content/filter/header regions, chrome, styles
 pbigen generate --source bigquery --set project=P dataset=D table=T \
-  --theme template/theme.json --logo template/assets/<logo>.png --nav right --out out --name Replica
+  --template brand_pack --out out --name InOurDesign
+# or in one step:  --template ~/Downloads/company_standard.pbix
 ```
-The look is matched; the charts follow *your* data. (Exact same-report clone → Power BI Desktop's
-*Save as .pbip*.)
+Your pages, KPIs and story; their canvas, background, sidebar, logo, title font, theme and visual
+formatting. Details: [templates.md](templates.md).
 
 ## 7. DirectQuery instead of Import
 
@@ -86,18 +87,24 @@ pbigen generate --source snowflake --set table=ORDERS database=ANALYTICS schema=
 ```
 DirectQuery keeps data live (needs a DQ-capable source — a warehouse, not a raw file).
 
-## 8. Let an LLM refine the design (any provider)
+## 8. Let the AI pipeline design the story (any provider)
 
 ```bash
 pip install "pbigen[llm]"
 export OPENAI_API_KEY=sk-…                 # or ANTHROPIC_API_KEY / GEMINI_API_KEY / …
+pbigen doctor --model gpt-4o               # key works? web research available?
 pbigen generate --source bigquery --set project=P dataset=D table=T \
-  --model gpt-4o-mini --theme midnight --out out --name LLMDesigned
-# Gemini:   --model gemini/gemini-2.5-flash   (export GEMINI_API_KEY)
-# Anthropic:--model anthropic/claude-sonnet-4-6
+  --model gpt-4o --research web --profile \
+  --context "Ride-hailing operator; leadership wants more completed trips at higher margin" \
+  --audience "COO and city managers" --template brand_pack --out out --name AIDesigned
+# Gemini:    --model gemini/gemini-2.5-flash        (export GEMINI_API_KEY)
+# Anthropic: --model anthropic/claude-sonnet-4-5    (export ANTHROPIC_API_KEY)
 ```
-The CLI reports `using litellm:<model>` if it ran, or `using deterministic (fallback …)` if the
-model couldn't be reached. Only metadata is sent — never rows ([models.md](models.md)).
+Five stages run (context → objectives & KPI tree → research → storyboard → critique); read the
+reasoning in `out/AIDesigned/DESIGN.md`. `--context` also accepts a file path (a brief, meeting
+notes). The CLI reports `using litellm:<model>`, or `deterministic (fallback …)` if no valid design
+came back. Only metadata is sent — plus aggregates with `--profile`, never rows
+([the pipeline](deterministic-vs-llm.md)).
 
 ## 9. Fully local model — nothing leaves your network
 

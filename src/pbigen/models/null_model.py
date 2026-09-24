@@ -8,6 +8,7 @@ Author: Arka Gupta
 """
 from __future__ import annotations
 
+from ..ai.pipeline import DesignRequest
 from ..core.design import Design
 from ..core.design import design as _design
 from ..core.schema import Schema
@@ -17,5 +18,5 @@ from .base import Model
 class NullModel(Model):
     name = "deterministic"
 
-    def design(self, schema: Schema, objective: str) -> Design:
-        return _design(schema, objective)
+    def design(self, schema: Schema, objective: str, request: DesignRequest | None = None) -> Design:
+        return _design(schema, objective, context=request.context if request else "")

@@ -2,37 +2,45 @@
   <img src="https://raw.githubusercontent.com/arkajojo/pbigen/main/assets/logo.svg" alt="pbigen" width="440">
 </p>
 
-<h3 align="center">Generate world-class Power BI dashboards from any data source — automatically.</h3>
+<h3 align="center">Your report's design. Your data's story. A finished Power BI dashboard — generated.</h3>
 
 <p align="center">
   <a href="https://pypi.org/project/pbigen/"><img alt="PyPI" src="https://img.shields.io/pypi/v/pbigen.svg?color=4C6FFF"></a>
   <a href="https://pypi.org/project/pbigen/"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/pbigen.svg?color=22C1C3"></a>
   <a href="https://github.com/arkajojo/pbigen/actions"><img alt="CI" src="https://github.com/arkajojo/pbigen/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1B1F3B.svg"></a>
-  <img alt="Status" src="https://img.shields.io/badge/status-beta-FDBB2D.svg">
+  <a href="https://arkajojo.github.io/pbigen/"><img alt="Docs" src="https://img.shields.io/badge/docs-arkajojo.github.io%2Fpbigen-7B5CFF.svg"></a>
+  <a href="https://github.com/arkajojo/pbigen/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1B1F3B.svg"></a>
 </p>
 
 ---
 
-Point **pbigen** at a table or view. It reads the schema, reasons about the *shape* of the data
-(types and cardinality), and writes a ready-to-open Power BI project: a left navigation sidebar with
-your brand and filters, KPI cards, data-appropriate charts, a detail table, and a "how to use this
-report" note — laid out cleanly, every time.
+**pbigen** turns a table into a complete, executive-grade Power BI report — and it can wear **the
+design of a report you already have**.
 
-No hand-built templates. No copy-pasting M queries. No guessing which chart fits which column.
+1. **Download any `.pbix` you like** (your company's standard report, a colleague's, a gallery
+   template). pbigen compiles it into a **template pack**: canvas, background, sidebar and header
+   chrome, logo, title font, theme, and the formatting of every visual type — *none of its data*.
+2. **Point pbigen at your data** (BigQuery, Snowflake, Databricks, Fabric, a Parquet/Iceberg/Delta
+   lake … 16 sources). An AI design pipeline works like a senior BI consultant: it understands the
+   **business context**, derives the **objectives and a KPI tree**, **researches** how leading
+   companies in that domain measure it (live web search where your model supports it), writes a
+   **storyboard**, then **critiques and repairs** its own design.
+3. **Open the result in Power BI Desktop** — a structured story (summary → trends → drivers →
+   detail → KPI definitions) laid into *your* design, with KPI cards that show green/red
+   period-over-period change, ranked charts, monthly trends, and a `DESIGN.md` explaining every choice.
 
-```python
-import pbigen
+```bash
+pip install "pbigen[bigquery,llm]"
 
-result = pbigen.generate(
-    "bigquery",
-    source_config={"project": "my-proj", "dataset": "sales", "table": "orders"},
-    objective="Revenue and orders by region over time",
-    theme="midnight",
-    out_dir="out",
-)
-print(result.pbip_path)   # open this in Power BI Desktop
+pbigen template build company_standard.pbix --out brand_pack        # once
+
+pbigen generate --source bigquery --set project=my-proj dataset=sales table=orders \
+    --template brand_pack \
+    --model gpt-4o --research web \
+    --context "D2C retailer; leadership wants profitable growth and repeat customers"
 ```
+
+No key? Drop `--model` — the deterministic engine still builds the full story offline, for free.
 
 <br>
 
@@ -40,131 +48,151 @@ print(result.pbip_path)   # open this in Power BI Desktop
 
 - [Why pbigen](#why-pbigen)
 - [How pbigen compares](#how-pbigen-compares)
-- [Features](#features)
+- [What you get](#what-you-get)
 - [Installation](#installation)
 - [Quickstart](#quickstart)
+- [Template packs: use any .pbix as the design](#template-packs-use-any-pbix-as-the-design)
+- [The AI design pipeline](#the-ai-design-pipeline)
 - [Supported sources](#supported-sources)
-- [Models: deterministic by default, LLM optional](#models-deterministic-by-default-llm-optional)
-- [Themes: bring your own, or use a built-in](#themes-bring-your-own-or-use-a-built-in)
-- [Layout, logo & storage mode](#layout-logo--storage-mode)
-- [Replicate a report's design shell](#replicate-a-reports-design-shell)
+- [Models](#models)
+- [Themes, logo, layout & storage mode](#themes-logo-layout--storage-mode)
 - [How it works](#how-it-works)
 - [Anatomy of the output](#anatomy-of-the-output)
 - [Opening the result in Power BI Desktop](#opening-the-result-in-power-bi-desktop)
-- [The design intelligence](#the-design-intelligence)
 - [Python API](#python-api)
 - [Command-line interface](#command-line-interface)
 - [Extending pbigen](#extending-pbigen)
 - [Documentation](#documentation)
-- [Roadmap](#roadmap)
 - [FAQ](#faq)
-- [Contributing](#contributing)
-- [License](#license)
+- [Contributing](#contributing) · [License](#license)
 
 <br>
 
 ## Why pbigen
 
-Building a good Power BI report by hand is slow and inconsistent. Someone picks the charts, wires
-every field, styles every visual, writes the connection query, and repeats it for the next dataset.
-The mechanical 90% eats the time that should go to the 10% that actually needs judgement.
+Building a good Power BI report is two jobs, and both are slow:
 
-pbigen does the mechanical 90% correctly and consistently. It is **opinionated about good
-defaults** and **unopinionated about your stack**:
+- **Craft** — matching the house style: the canvas, the sidebar, the fonts, the card borders and
+  shadows, the logo, repeated by hand for every new report.
+- **Thinking** — deciding what the report is *for*: which KPIs matter, how they decompose, which
+  question each page answers, which chart fits which question — so it tells a story instead of
+  dumping "X by Y" charts.
 
-- **Opinionated defaults** — cardinality-aware chart selection, a date column becomes a range filter
-  (never a 500-row dropdown), wide breakdowns go in a matrix, KPIs lead every page, and a clean
-  navigation sidebar is always there.
-- **Unopinionated stack** — bring your own warehouse or lakehouse, your own model (or none), and your
-  own theme.
-
-The output is a standard, version-controllable **PBIP** project — not a black-box binary — so it
-drops straight into source control and your existing Power BI workflow.
+pbigen automates both. The **template pack** takes the craft from a report you already like. The
+**design pipeline** does the thinking the way a senior consultant would — and writes it down in a
+`DESIGN.md` so the reasoning can be reviewed. The output is a standard **PBIP** project (PBIR +
+TMDL): text files you own, diff, review and put in CI.
 
 <br>
 
 ## How pbigen compares
 
-AI dashboard generation is a crowded space in 2026 — Power BI Copilot and Agent Skills, plus
-agentic BI platforms like ThoughtSpot, Tableau Pulse, Sigma, Domo and Tellius. Most of them are
-powerful, and most are **cloud services that build dashboards inside their own surface**. pbigen
-takes a different shape: it's a small, open-source library that turns a table into **portable,
-version-controlled Power BI files** on your machine — free, and offline by default.
-
 | Capability | **pbigen** | Power BI Copilot / Agent Skills | Agentic BI platforms<br>(ThoughtSpot, Sigma, Tableau Pulse, Domo, Tellius) | Generic LLM<br>(ChatGPT / Claude) |
 |---|:---:|:---:|:---:|:---:|
+| Reuses **your existing report's design** (from a `.pbix`) | ✅ | ⚠️ themes only | ❌ | ❌ |
+| Staged **business reasoning** (context → objectives → research → story → critique) | ✅ | ⚠️ | ⚠️ | ⚠️ ad hoc |
 | Outputs **native, portable Power BI files** (PBIP you own) | ✅ | ⚠️ builds in the service | ❌ their own BI surface | ❌ snippets only |
-| **Version-controlled, CI-friendly** text output (PBIR + TMDL) | ✅ | ⚠️ not the generation flow | ❌ | ❌ |
-| Runs **locally / in CI**, no paid cloud capacity | ✅ | ❌ needs Fabric capacity (F2+) | ❌ SaaS subscription | ⚠️ needs API/subscription |
+| **Version-controlled, CI-friendly** text output (PBIR + TMDL) | ✅ | ⚠️ | ❌ | ❌ |
+| Runs **locally / in CI**, no paid cloud capacity | ✅ | ❌ needs Fabric capacity | ❌ SaaS subscription | ⚠️ API/subscription |
 | Works with **no LLM / API key** (deterministic) | ✅ | ❌ | ❌ | ❌ |
-| One interface across warehouses **+ lakehouse (Iceberg/Delta) + semantic layer**, multi-cloud | ✅ | ⚠️ Fabric / OneLake-centric | ⚠️ varies by vendor | ❌ |
-| **Metadata-only** — no row data leaves your environment to design | ✅ | ⚠️ cloud service | ⚠️ SaaS | ❌ you paste data |
-| **Open source (MIT)**, self-hostable, no lock-in | ✅ | ❌ | ❌ | ❌ |
-| Cost | **Free** | Paid (Fabric capacity) | Paid (per-seat SaaS) | Usage-based |
+| One interface across warehouses **+ lakehouse + semantic layer**, multi-cloud | ✅ | ⚠️ Fabric-centric | ⚠️ varies | ❌ |
+| **Metadata-only** by default — no row data sent to design | ✅ | ⚠️ cloud service | ⚠️ SaaS | ❌ you paste data |
+| **Open source (MIT)**, no lock-in, free | ✅ | ❌ | ❌ | ❌ |
 
-*(⚠️ = partial or conditional; comparisons reflect each tool's common default in 2026, not every edge case. Copilot / Agent Skills and the agentic platforms are genuinely capable — pbigen is the open, local, file-first option, and pairs fine alongside them.)*
+*(⚠️ = partial or conditional; comparisons reflect each tool's common default in 2026. Copilot and
+the agentic platforms are genuinely capable — pbigen is the open, local, file-first option and pairs
+fine alongside them.)*
 
 <br>
 
-## Features
+## What you get
 
-- 🔌 **16 source kinds, one interface** — warehouses, query engines, open table formats on every
-  major cloud, and a semantic layer.
-- 🧠 **Data-shape-aware design** — chart and filter choices follow from column types and cardinality,
-  not guesswork.
-- 🎨 **Executive aesthetics** — light canvas, raised white cards with coloured KPI accent bars, big
-  numbers, refined typography and charts — with three polished built-in themes or your own theme JSON.
-- 🏗️ **Reusable design shell** — put the nav sidebar left or right (`--nav`), add a logo (`--logo`),
-  and **`extract-template`** the theme + logo out of a shared `.pbix` to regenerate *your* data in
-  someone else's look.
-- ⚙️ **Storage & scale controls** — `--mode import|directquery`, and `row_limit` to sample a huge
-  table for fast iteration.
-- 🤖 **Pluggable design model** — deterministic by default (no key, no network); optionally let any
-  LiteLLM model (hosted or fully local) refine the design. **Only metadata is ever sent.**
-- 🧱 **Standards-based output** — a PBIP project (PBIR report + TMDL semantic model) that validates
-  against Microsoft's published schemas and opens directly in Power BI Desktop.
-- 🔒 **Read-only and safe** — sources are introspection-only; no rows are read to design the report.
-- 🧩 **Clean seams** — source → design → layout → emit are independent and individually testable.
-- 🖥️ **Python API and CLI** — script it or run it from the terminal.
+- 🎨 **Your design, reused** — `pbigen template build report.pbix` captures canvas size, page
+  background, sidebar/header chrome, logo, title font, theme and per-visual formatting (borders,
+  radius, shadows, slicer styling). New dashboards land in *their* content area, filter rail and header.
+- 🧠 **A consultant-grade AI pipeline** — business context → objectives & KPI tree → research
+  (live web search on OpenAI / Anthropic / Gemini, curated domain playbooks otherwise) → storyboard →
+  self-critique & repair. Every field it returns is validated against the live schema.
+- 📖 **A story, not a chart dump** — every page answers one headline question; every visual has a
+  subtitle saying how to read it; an **About** page defines every KPI (formula, unit, direction).
+- 📈 **Executive visuals** — KPI cards with a **coloured period-over-period delta** (red when cost
+  goes up, green when revenue does), combo volume-vs-value charts, ranked bars, treemaps,
+  waterfalls, scatter, scorecard matrices, **monthly** trends (never raw timestamps).
+- 🧮 **Real KPI trees** — totals, distinct entities, ratios and KPI-on-KPI formulas
+  (`Net Revenue = Gross − Discount`, `AOV = Revenue ÷ Orders`) emitted as clean DAX.
+- 📝 **`DESIGN.md`** next to every report — the business context, objectives, KPI tree, research
+  findings (with sources), storyline, critique changes and data gaps.
+- 🔌 **16 source kinds, one interface** — BigQuery/BigLake/Omni, Snowflake, Redshift, Athena,
+  Synapse/Fabric, Databricks, ClickHouse, Postgres, Parquet/Iceberg/Delta on local/GCS/S3/ADLS, Cube.
+- 🔒 **Safe by design** — read-only introspection; only metadata goes to a model (aggregate
+  profiles only if you opt in with `--profile`); output validates against Microsoft's PBIR schemas.
+- 🆓 **Deterministic mode** — no key, no network: a complete story-structured dashboard offline.
 
 <br>
 
 ## Installation
 
 ```bash
-pip install pbigen
+pip install pbigen                        # core (deterministic, offline)
+pip install "pbigen[bigquery,llm]"        # + a source and the AI pipeline
+pip install "pbigen[all]"                 # everything
 ```
-
-The core is dependency-light. Install only the extras you need — each pulls in exactly one stack's
-driver:
 
 | Extra | Installs support for |
 |-------|----------------------|
 | `pbigen[bigquery]` | BigQuery, BigLake, BigQuery Omni |
-| `pbigen[redshift]` | Amazon Redshift |
-| `pbigen[athena]` | Amazon Athena |
+| `pbigen[redshift]` · `[athena]` | Amazon Redshift · Athena |
 | `pbigen[snowflake]` | Snowflake |
 | `pbigen[synapse]` | Azure Synapse / Microsoft Fabric / SQL Server |
-| `pbigen[databricks]` | Databricks SQL |
-| `pbigen[clickhouse]` | ClickHouse |
-| `pbigen[postgres]` | PostgreSQL |
+| `pbigen[databricks]` · `[clickhouse]` · `[postgres]` | Databricks SQL · ClickHouse · PostgreSQL |
 | `pbigen[lakehouse]` | Parquet, Iceberg, Delta on local / GCS / S3 / ADLS (DuckDB) |
 | `pbigen[cube]` | Cube semantic layer |
-| `pbigen[llm]` | LLM-refined design via LiteLLM |
-| `pbigen[all]` | Everything above |
+| `pbigen[llm]` | The AI design pipeline via LiteLLM (any provider, hosted or local) |
 
-```bash
-pip install "pbigen[bigquery]"
-pip install "pbigen[lakehouse,llm]"
-pip install "pbigen[all]"
-```
-
-**Requirements:** Python 3.10+. To open the generated project you need Power BI Desktop with the
-PBIR preview enabled — see [Opening the result](#opening-the-result-in-power-bi-desktop).
+**Requirements:** Python 3.10+, and Power BI Desktop with the PBIR preview enabled to open the output
+([how](#opening-the-result-in-power-bi-desktop)). Check your setup any time with `pbigen doctor`.
 
 <br>
 
 ## Quickstart
+
+### 1. Try it offline in 30 seconds
+
+```bash
+pip install "pbigen[lakehouse]" pyarrow
+python examples/generate_from_parquet.py      # builds a sample file and generates a full report
+```
+
+### 2. Your data, deterministic (no key)
+
+```bash
+pbigen generate --source snowflake \
+  --set account=ab12345 warehouse=BI_WH database=ANALYTICS schema=SALES table=ORDERS \
+  --objective "Sales performance by region and product" --out out
+```
+
+### 3. Your data, your design, AI-designed
+
+```bash
+export OPENAI_API_KEY=...                     # or ANTHROPIC_API_KEY / GEMINI_API_KEY / a local model
+pbigen doctor --model gpt-4o                  # checks the key and whether web research is available
+
+pbigen generate --source bigquery --set project=P dataset=D table=T \
+  --template ~/Downloads/company_standard.pbix \
+  --model gpt-4o --research web --profile \
+  --context brief.md --audience "COO and regional managers" --out out
+```
+
+```text
+pbigen ▸ 1/5 business context: ok (14.7s)
+pbigen ▸ 2/5 objectives & KPI tree: ok (15.0s)
+pbigen ▸ 3/5 research (web): ok (52.6s)
+pbigen ▸ 4/5 storyboard & visual design: ok (39.2s)
+pbigen ▸ 5/5 design critique & repair: ok (37.1s)
+Generated 6 pages from orders (9 columns) using litellm:gpt-4o, in the template 'company_standard'.
+Open:   out/Orders/Orders.pbip
+Why:    out/Orders/DESIGN.md   (business context, KPI tree, storyline)
+```
 
 ### Python
 
@@ -172,50 +200,90 @@ PBIR preview enabled — see [Opening the result](#opening-the-result-in-power-b
 import pbigen
 
 result = pbigen.generate(
-    "snowflake",
-    source_config={
-        "account": "ab12345", "warehouse": "BI_WH",
-        "database": "ANALYTICS", "schema": "SALES", "table": "ORDERS",
-    },
-    objective="Sales performance by region and product",
-    theme="midnight",
+    "bigquery",
+    source_config={"project": "my-proj", "dataset": "sales", "table": "orders"},
+    template="brand_pack",                     # a pack folder, or a .pbix/.pbit/.pbip directly
+    model="anthropic/claude-sonnet-4-5",       # omit for the deterministic engine
+    research="web",
+    context="D2C retailer; leadership wants profitable growth and repeat customers",
     out_dir="out",
-    name="SalesOverview",
 )
-print(f"{result.n_pages} pages, {result.n_columns} columns → {result.pbip_path}")
+print(result.pbip_path, result.design_md)
 ```
 
-### Command line
+<br>
+
+## Template packs: use any .pbix as the design
 
 ```bash
-pbigen generate --source snowflake \
-  --set account=ab12345 warehouse=BI_WH database=ANALYTICS schema=SALES table=ORDERS \
-  --objective "Sales performance by region and product" \
-  --theme midnight --out out --name SalesOverview
+pbigen template build their_report.pbix --out brand_pack     # compile once
+pbigen template show brand_pack                              # what it captured
+pbigen generate --source ... --template brand_pack           # reuse for every new dashboard
+pbigen generate --source ... --template their_report.pbix    # …or compile on the fly
 ```
 
-### Try it offline in 30 seconds
-
-No cloud account needed — generate from a local Parquet file:
-
-```bash
-pip install "pbigen[lakehouse]" pyarrow
-python examples/generate_from_parquet.py     # builds a sample file and generates from it
+```text
+Template pack: company_standard  (from company_standard.pbix, reference page 'Overview')
+  canvas      1920 x 1080
+  content     x=340 y=150 w=1550 h=900
+  header      x=340 y=24 w=1100 h=90  font=Segoe UI Semibold 28pt
+  filters     x=24 y=180 w=280 h=640
+  chrome      3 element(s): image, pageNavigator, shape
+  background  yes
+  styles      card, clusteredBarChart, donutChart, lineChart, pivotTable, slicer, tableEx, …
+  theme       theme.json
+  assets      2 image(s)
 ```
 
-> **Testing it for real?** **[docs/testing.md](https://github.com/arkajojo/pbigen/blob/main/docs/testing.md)** is a self-serve guide for your whole
-> team: how to install, **authenticate**, and verify every source and model — from the 30-second
-> offline check to a full BigQuery matrix (deterministic × LLM, built-in × custom theme) validated
-> against Microsoft's schemas.
+pbigen picks the report's richest page as the reference and measures it:
+
+| Captured | How it is used |
+|---|---|
+| **Canvas** — page size, background image / wallpaper | every generated page uses the same canvas |
+| **Content region** — where their data visuals live | your KPI band and story grid are laid out inside it |
+| **Filter rail** — where their slicers live | your filters go there (stacked if tall, a band if wide) |
+| **Header** — their most prominent title, its font/size/colour/alignment | your page title + headline question |
+| **Chrome** — sidebar panels, header bands, logos, page navigators | copied with exact positions (tall panels grow with the page) |
+| **Styles** — per visual type: borders, radius, shadows, title fonts, slicer look | applied under pbigen's bindings on every matching visual |
+| **Theme** — their custom theme JSON + images | registered with the report (override with `--theme`) |
+
+What is **not** copied: their data, field bindings, conditional formats tied to their fields, and
+page-specific text — those are exactly what pbigen regenerates for your data. Reads legacy
+`.pbix`/`.pbit` layouts and PBIR (`.pbip`/`.Report` folders or PBIR-format `.pbix`). A report pbigen
+generated is itself a valid template. Details: **[docs/templates.md](https://github.com/arkajojo/pbigen/blob/main/docs/templates.md)**.
+
+<br>
+
+## The AI design pipeline
+
+With `--model`, five expert stages run in sequence, each with its own persona, the curated design
+knowledge base (IBCS, Few, Knaflic, Minto, plus domain KPI playbooks for mobility, commerce,
+marketing, product, finance, operations, service, HR, SaaS and healthcare) and a strict JSON contract:
+
+| Stage | Persona | Produces |
+|---|---|---|
+| 1. **Business context** | principal analytics consultant | domain, business model, grain, entities, audience & their decisions, column meanings, assumptions, caveats |
+| 2. **Objectives & KPI tree** | head of strategy & analytics | north star, objectives → decisions → prioritised questions, 6-12 KPIs with exact formulas, unit and good direction, data **gaps** |
+| 3. **Research** | BI research analyst | how leading organisations measure this domain, benchmarks, recommended views, pitfalls — **live web search** (`--research web`) or built-in playbooks |
+| 4. **Storyboard** | IBCS-trained dashboard designer | 4-6 pages, a question per page, the right chart per question, subtitles, layout sizes, filters, coverage map |
+| 5. **Critique & repair** | the most demanding reviewer | checks coverage, story flow, chart fitness, clarity, validity — returns the corrected design |
+
+Then pbigen **validates everything against the live schema** — unknown columns dropped, donuts with
+too many slices become ranked bars, trends move to the monthly grain, KPI-on-KPI formulas are
+resolved — adds the period-over-period deltas and the About page, and writes `DESIGN.md`. If any
+stage fails, the run continues; if no valid design emerges, the deterministic design is used and
+the result says so.
+
+**Privacy:** only metadata (column names, types, approximate distinct counts) is sent. `--profile`
+adds aggregate profiles — min/max/avg, date ranges, top category values — never rows.
 
 <br>
 
 ## Supported sources
 
-Every adapter implements the same read-only contract — **introspect** (columns + canonical types),
-**approx_distinct** (cardinality, to drive design), and **power_query** (the M the report uses to
-connect at refresh). Per-source **authentication**, config, and a test recipe live in
-**[docs/sources.md](https://github.com/arkajojo/pbigen/blob/main/docs/sources.md)**; the end-to-end verification guide is **[docs/testing.md](https://github.com/arkajojo/pbigen/blob/main/docs/testing.md)**.
+Every adapter implements the same read-only contract — **introspect**, **approx_distinct**,
+**profile** (opt-in aggregates) and **power_query** (the M the report refreshes with). Auth and
+config per source: **[docs/sources.md](https://github.com/arkajojo/pbigen/blob/main/docs/sources.md)**.
 
 | Cloud / family | Sources | Extra |
 |----------------|---------|-------|
@@ -226,179 +294,88 @@ connect at refresh). Per-source **authentication**, config, and a test recipe li
 | **Semantic layer** | Cube | `cube` |
 
 ```bash
-pbigen sources                                   # list every source kind
+pbigen sources                                                      # list every source kind
 pbigen test --source lakehouse --set uri=./sales.parquet fmt=parquet   # verify connectivity
 ```
 
-Open table formats (Parquet, Apache Iceberg, Delta Lake) are read on local disk or any of the three
-clouds through a single DuckDB-powered adapter — no cluster required for introspection. For *report
-refresh*, raw Parquet is reachable via Power BI's storage connectors; Iceberg/Delta are best served
-through a Fabric Lakehouse or Databricks SQL endpoint (details in [docs/sources.md](https://github.com/arkajojo/pbigen/blob/main/docs/sources.md)).
-
 <br>
 
-## Models: deterministic by default, LLM optional
-
-Out of the box, pbigen designs dashboards with a **deterministic, no-key engine** — no network
-call, no cost, fully reproducible. To let a language model refine the design, pass any
-[LiteLLM](https://github.com/BerriAI/litellm) model id — hosted or a local open-source model:
+## Models
 
 ```python
-pbigen.generate("bigquery", source_config={...},
-                   model="gpt-4o-mini")                     # bring your own key via env
-
-pbigen.generate("bigquery", source_config={...},
-                   model="anthropic/claude-sonnet-4-6")
-
-pbigen.generate("bigquery", source_config={...},
-                   model="ollama/llama3",                   # fully local, open-source
-                   model_config={"api_base": "http://localhost:11434"})
+pbigen.generate(..., model=None)                              # deterministic (default): offline, free
+pbigen.generate(..., model="gpt-4o")                          # OPENAI_API_KEY
+pbigen.generate(..., model="anthropic/claude-sonnet-4-5")     # ANTHROPIC_API_KEY
+pbigen.generate(..., model="gemini/gemini-2.5-flash")         # GEMINI_API_KEY
+pbigen.generate(..., model="ollama/llama3.1",                 # fully local
+                model_config={"api_base": "http://localhost:11434"})
 ```
 
-> **Privacy:** only **metadata** — column names, canonical types and approximate distinct counts —
-> is ever sent to a model. No row data leaves your machine. Every field the model returns is
-> validated against the live schema, and if the model is unreachable or returns something unusable,
-> pbigen falls back to the deterministic design so generation never hard-fails.
-
-More in **[docs/models.md](https://github.com/arkajojo/pbigen/blob/main/docs/models.md)**.
+Any [LiteLLM](https://github.com/BerriAI/litellm) model id works. Web research is used where the
+provider supports it (OpenAI search models / GPT-5, Anthropic, Gemini); elsewhere `--research web`
+falls back to the built-in knowledge automatically. Stronger models tell better stories — the
+pipeline is written to get the most out of frontier models, and still validates small local ones.
+More: **[docs/models.md](https://github.com/arkajojo/pbigen/blob/main/docs/models.md)**.
 
 <br>
 
-## Themes: bring your own, or use a built-in
-
-```python
-pbigen.generate(..., theme="midnight")            # built-in: midnight | slate | aurora
-pbigen.generate(..., theme="./corporate.json")    # your Power BI theme JSON, applied as-is
-```
-
-| Theme | Look |
-|-------|------|
-| `midnight` | Deep indigo sidebar, blue/teal data colours |
-| `slate` | Neutral slate, red accent |
-| `aurora` | Deep green sidebar, green/blue data colours |
-
-Your theme travels with the project as a registered custom theme. More in
-**[docs/themes.md](https://github.com/arkajojo/pbigen/blob/main/docs/themes.md)**.
-
-<br>
-
-## Layout, logo & storage mode
+## Themes, logo, layout & storage mode
 
 ```bash
-pbigen generate ... --nav right                 # navigation sidebar on the right (default: left)
-pbigen generate ... --logo ./assets/logo.png    # drop a logo image into the nav sidebar
-pbigen generate ... --mode directquery          # live queries instead of an imported copy (import is default)
+pbigen generate ... --theme midnight            # built-in: midnight | slate | aurora
+pbigen generate ... --theme ./corporate.json    # your theme JSON (also overrides a template's theme)
+pbigen generate ... --nav right --logo logo.png # pbigen shell: sidebar side + logo
+pbigen generate ... --mode directquery          # live queries instead of an imported copy
+pbigen generate ... --compare-days 7            # KPI deltas: last 7 days vs prior 7
 pbigen generate --source bigquery --set ... row_limit=50000   # sample a huge table for fast iteration
 ```
-
-- **`--nav left|right`** mirrors the whole shell (sidebar, filters, logo, notes) to that side.
-- **`--logo`** copies the image into the report's registered resources and binds it as an image visual.
-- **`--mode`** sets the semantic-model storage mode (`import` loads a copy; `directquery` queries the
-  source live — needs a DirectQuery-capable source such as a warehouse).
-- **`row_limit`** (BigQuery `--set`) generates a `Table.FirstN(…, N)` sample so big tables build fast.
-
-## Replicate a report's design shell
-
-Have a report you like — say a colleague shares its `.pbix`? Reuse its **look** (theme, colours,
-fonts, logo, nav layout) and pour **your own data** into it. A Power BI *theme* only carries
-colours/fonts/visual-style defaults — the rest of the shell you match with `--nav`/`--logo`.
-
-```bash
-# 1) pull the reusable shell out of the shared .pbix
-pbigen extract-template their_report.pbix --out template
-#    → template/theme.json          (their custom theme, if any)
-#    → template/assets/<logo>.png   (their logo / background images)
-
-# 2) regenerate YOUR data into that shell
-pbigen generate --source bigquery --set project=P dataset=D table=T \
-  --theme template/theme.json --logo template/assets/<logo>.png --nav right --out out
-```
-
-**What is and isn't replicated:** the **theme + logo + nav layout** are matched apple-to-apple; the
-**visuals and data are yours** (that's the point — your charts, not theirs). If the shared report used
-only a built-in theme, there's no custom `theme.json` to extract — `--nav`/`--logo` and a gallery
-theme still let you match the shell. For an *exact* clone of the same report on the same data, Power
-BI Desktop's native **File → Save as → `.pbip`** is the right tool — pbigen reuses the shell, it
-doesn't clone a specific report.
 
 <br>
 
 ## How it works
 
 ```
- source ──introspect──▶ canonical schema ──▶ design brain ──▶ layout ──▶ Power BI project
-         (+cardinality)   (types, counts)     (charts+filters)  (sidebar)   (PBIP + PBIR + TMDL)
-                                                     ▲
-                                              optional LLM refine
-                                              (metadata only)
+ your .pbix ──template build──▶ template pack (canvas · chrome · header · styles · theme)
+                                                   │
+ source ──introspect──▶ schema (+cardinality, +opt-in profile, +monthly grain)
+                              │                    │
+                              ▼                    ▼
+        design: deterministic storyboard   or   AI pipeline (context → objectives →
+                                                 research → storyboard → critique)
+                              │
+                              ▼
+        finish: KPI-card deltas · About page · schema validation
+                              │
+                              ▼
+        layout (12-col grid inside the frame) ──▶ PBIP project (PBIR + TMDL) + DESIGN.md
 ```
-
-1. **Source** introspects the table (metadata only) and reports approximate cardinality.
-2. **Design brain** classifies every column (measure / date / category / geo / id), proposes
-   measures, and picks visuals and filters from the data shape. An LLM can refine this; the rules
-   always produce a complete design on their own.
-3. **Layout** packs the page — a left sidebar for brand + filters + notes, a KPI row, then charts
-   and tables placed by footprint.
-4. **Emitter** writes a standard PBIP project: a PBIR report and a TMDL semantic model wired to the
-   source via Power Query.
 
 <br>
 
 ## Anatomy of the output
 
 ```
-out/SalesOverview/
-├── SalesOverview.pbip                       # open this in Power BI Desktop
-├── SalesOverview.Report/                    # the report (PBIR format)
+out/Orders/
+├── Orders.pbip                             # open this in Power BI Desktop
+├── DESIGN.md                               # the reasoning: context, KPI tree, research, storyline
+├── Orders.Report/                          # the report (PBIR)
 │   ├── definition.pbir
+│   ├── StaticResources/RegisteredResources/   # theme, logo, template background & images
 │   └── definition/
-│       ├── report.json                      # theme + layout settings
-│       ├── version.json
-│       ├── pages/
-│       │   ├── pages.json                    # page order
-│       │   └── <page>/page.json + visuals/<v>/visual.json
-│       └── StaticResources/RegisteredResources/<theme>.json
-└── SalesOverview.SemanticModel/             # the model (TMDL)
-    ├── definition.pbism
-    └── definition/
-        ├── database.tmdl
-        ├── model.tmdl
-        └── tables/<table>.tmdl               # columns, DAX measures, the M connection
+│       ├── report.json · version.json
+│       └── pages/<page>/page.json + visuals/<v>/visual.json
+└── Orders.SemanticModel/                   # the model (TMDL)
+    └── definition/tables/<table>.tmdl      # columns, monthly grain, DAX measures, the M connection
 ```
-
-Everything is text and version-control-friendly. The report JSON validates against Microsoft's
-published PBIR JSON schemas.
 
 <br>
 
 ## Opening the result in Power BI Desktop
 
-The output is a **PBIP** project. Enable the enhanced report format once:
-
-1. **File → Options and settings → Options → Preview features**
-2. Tick **"Store reports using enhanced metadata format (PBIR)"**
-3. Restart Power BI Desktop.
-
-Then open the `.pbip` file and **Refresh** to load data through the generated connection. (This is a
-one-time setting; PBIR is Microsoft's text-based report format that pbigen emits.)
-
-<br>
-
-## The design intelligence
-
-The deterministic engine makes these calls from the data shape, before any LLM is involved:
-
-- **Column roles** — measures, dates, categories, geo and identifiers are detected from type and
-  name, so ids and codes never get charted as if they were metrics.
-- **Dates are ranges, not dropdowns** — a real date/time column drives a range slider; a 500-value
-  dropdown never happens.
-- **Donut vs. bar** — a breakdown with ≤ 8 categories becomes a donut, otherwise a bar.
-- **Redundant filters dropped** — once a real date exists, derived period columns (year, month,
-  `year_month`) are kept out of the filter rail.
-- **Wide goes wide** — matrices with a series or many measures, and wide tables, get full width;
-  narrow visuals pair up two-across.
-- **A narrative** — pages flow Executive Summary → Trends → Segmentation → Detail, each led by KPI
-  cards, with a "how to use this report" note in the sidebar.
+1. **File → Options and settings → Options → Preview features** → tick **"Store reports using
+   enhanced metadata format (PBIR)"** → restart (one time).
+2. Keep the `.pbip`, `.Report` and `.SemanticModel` together (never open from inside a zip).
+3. Open the `.pbip`, sign in to the source when prompted, and **Refresh**.
 
 <br>
 
@@ -408,134 +385,108 @@ The deterministic engine makes these calls from the data shape, before any LLM i
 pbigen.generate(
     source,                    # a source kind string, or a configured Source instance
     *,
-    out_dir="out",             # where to write the project
-    name=None,                 # project name (defaults to the table's display name)
-    objective="",              # plain-language description of what the report should answer
+    template=None,             # template pack folder, or a .pbix/.pbit/.pbip to use as the design
     model=None,                # None/"deterministic" | LiteLLM model id | a Model instance
-    theme=None,                # built-in name | path to a Power BI theme JSON
-    mode="import",             # "import" or "directquery" (semantic-model storage mode)
-    nav="left",                # navigation sidebar side: "left" or "right"
-    logo=None,                 # path to a logo image to place in the nav sidebar
-    source_config=None,        # dict passed to the source adapter (when source is a string)
-    model_config=None,         # dict passed to the model (e.g. api_key, api_base, temperature)
-) -> GenerateResult
-```
+    objective="",              # what the dashboard should answer
+    context="",                # business context: text, or a path to a brief/notes file
+    audience="",               # who reads it
+    research="builtin",        # "builtin" | "web" | "off"
+    profile=False,             # send aggregate profiles (never rows) to the model
+    critique=True,             # run the critique & repair stage
+    compare_days=30,           # KPI card delta window
+    theme=None,                # built-in name | theme JSON path (overrides a template's theme)
+    mode="import",             # "import" | "directquery"
+    nav="left", logo=None,     # pbigen shell options
+    out_dir="out", name=None,
+    source_config=None, model_config=None,
+) -> GenerateResult            # pbip_path, design_md, design, template, n_pages, model_name, …
 
-```python
-@dataclass
-class GenerateResult:
-    pbip_path: str       # path to the .pbip to open
-    design: Design       # the pages/visuals/measures that were generated
-    table: str
-    n_columns: int
-    n_pages: int
-    model_name: str      # "deterministic" or e.g. "litellm:gpt-4o-mini"
+from pbigen.template import build_pack, load_pack   # compile / load template packs in code
 ```
-
-Helpers: `pbigen.available_kinds()`, `pbigen.available_themes()`, `pbigen.get_source(kind, **cfg)`.
 
 <br>
 
 ## Command-line interface
 
 ```bash
-pbigen generate --source <kind> [--set k=v ...] [--objective ...] [--model ...] [--theme ...] \
-                   [--mode import|directquery] [--nav left|right] [--logo IMG] [--out DIR] [--name NAME]
-pbigen extract-template <file.pbix> [--out DIR]    # reuse a shared report's theme + logo + shell
-pbigen test     --source <kind> [--set k=v ...]      # verify connectivity + introspection
-pbigen sources                                       # list available source kinds
-pbigen themes                                        # list built-in themes
-pbigen --version
+pbigen generate --source <kind> [--set k=v ...] [--template PACK|FILE.pbix] [--model ID]
+                [--objective TEXT] [--context TEXT|FILE] [--audience TEXT]
+                [--research builtin|web|off] [--profile] [--no-critique] [--compare-days N]
+                [--theme NAME|FILE] [--mode import|directquery] [--nav left|right] [--logo IMG]
+                [--out DIR] [--name NAME]
+pbigen template build <report.pbix|.pbit|.pbip> [--out DIR] [--page NAME] [--name NAME]
+pbigen template show  <pack>
+pbigen doctor [--model ID]          # installed extras, model key, web-research availability
+pbigen test   --source <kind> [--set k=v ...]
+pbigen sources | themes | --version
 ```
-
-`--set` takes `key=value` pairs forwarded to the adapter; integers and booleans are coerced.
 
 <br>
 
 ## Extending pbigen
 
-**Add a source** — subclass `Source` (or `SqlSource` for a SQLAlchemy dialect), implement
-`introspect`, `approx_distinct` and `power_query`, and register it:
+**Add a source** — subclass `Source` (or `SqlSource`), implement `introspect`, `approx_distinct`,
+`power_query` (and optionally `profile`), and register it in `pbigen.sources`.
+
+**Add a design model** — subclass `Model` and return a `Design`; reuse the pipeline with your own
+transport if you like:
 
 ```python
-from pbigen.sources.base import Source
-
-class MySource(Source):
-    kind = "mysource"
-    def introspect(self): ...
-    def approx_distinct(self, columns): ...
-    def power_query(self): ...
-```
-
-**Add a design model** — subclass `Model` and return a `Design` (start from the deterministic one):
-
-```python
+from pbigen.ai.pipeline import DesignPipeline, DesignRequest
 from pbigen.models.base import Model
-from pbigen.core.design import design as deterministic
 
 class MyModel(Model):
     name = "my-model"
-    def design(self, schema, objective):
-        return deterministic(schema, objective)   # then refine
-
-pbigen.generate(..., model=MyModel())
+    def design(self, schema, objective, request=None):
+        complete = lambda system, user, web=False: my_llm(system, user)   # -> JSON text
+        return DesignPipeline(complete, self.name).run(schema, request or DesignRequest(objective))
 ```
 
-See [CONTRIBUTING.md](https://github.com/arkajojo/pbigen/blob/main/CONTRIBUTING.md) for the full guide.
+**Add a domain playbook** — append a `Playbook` in `pbigen/ai/knowledge.py` (keywords, north star,
+objectives, KPIs, storyline, pitfalls). See [CONTRIBUTING.md](https://github.com/arkajojo/pbigen/blob/main/CONTRIBUTING.md).
 
 <br>
 
 ## Documentation
 
+Full docs: **[arkajojo.github.io/pbigen](https://arkajojo.github.io/pbigen/)**
+
 | Guide | What's in it |
 |-------|--------------|
-| **[docs/recipes.md](https://github.com/arkajojo/pbigen/blob/main/docs/recipes.md)** | Copy-paste end-to-end recipes for **every** feature: offline, any warehouse, sampling, custom theme, logo + nav, replicate a `.pbix` shell, DirectQuery, LLM (any provider), local model, Python API, schema-check, open in Desktop. **Start here to build.** |
-| **[docs/testing.md](https://github.com/arkajojo/pbigen/blob/main/docs/testing.md)** | Self-serve verification for every source and model — offline check → universal 6-step → schema validation → the full BigQuery matrix → troubleshooting. **Start here to test.** |
-| **[docs/sources.md](https://github.com/arkajojo/pbigen/blob/main/docs/sources.md)** | Every connector: install, **authenticate** (with how to get credentials + IAM), configure, test, generate. |
-| **[docs/models.md](https://github.com/arkajojo/pbigen/blob/main/docs/models.md)** | Use any LLM: provider matrix (OpenAI, Anthropic, Gemini, Azure, Bedrock, local Ollama/vLLM) with env-var auth + examples. |
-| **[docs/themes.md](https://github.com/arkajojo/pbigen/blob/main/docs/themes.md)** | Built-in themes and bringing your own Power BI theme JSON. |
-| **[docs/publishing.md](https://github.com/arkajojo/pbigen/blob/main/docs/publishing.md)** | Maintainer runbook: build, release to PyPI, and the tag-triggered Trusted-Publishing workflow. |
-| **[examples/](https://github.com/arkajojo/pbigen/tree/main/examples)** | Runnable scripts: local Parquet, BigQuery, LLM-refined design, and the 4-combo BigQuery verification harness. |
-| **[CONTRIBUTING.md](https://github.com/arkajojo/pbigen/blob/main/CONTRIBUTING.md)** · **[CHANGELOG.md](https://github.com/arkajojo/pbigen/blob/main/CHANGELOG.md)** | How to contribute; release history. |
-
-<br>
-
-## Roadmap
-
-- Live smoke-test matrix across every credentialed connector
-- Refresh-friendly adapters for Iceberg/Delta via Fabric Lakehouse shortcuts
-- Refactor mode: add pages / visuals to an existing report
-- Additional emit targets beyond Power BI
-- Relationship and multi-table (star-schema) modelling
-
-Ideas and issues welcome — see [Contributing](#contributing).
+| **[Recipes](https://github.com/arkajojo/pbigen/blob/main/docs/recipes.md)** | Copy-paste recipes for every feature. **Start here to build.** |
+| **[Template packs](https://github.com/arkajojo/pbigen/blob/main/docs/templates.md)** | Turning any `.pbix` into a reusable design; what is captured; troubleshooting. |
+| **[AI pipeline](https://github.com/arkajojo/pbigen/blob/main/docs/deterministic-vs-llm.md)** | The five stages, deterministic vs LLM, what is sent, research modes. |
+| **[Sources](https://github.com/arkajojo/pbigen/blob/main/docs/sources.md)** | Every connector: install, authenticate, configure, test. |
+| **[Models](https://github.com/arkajojo/pbigen/blob/main/docs/models.md)** | Any LLM provider (and local models) with env-var auth. |
+| **[Themes](https://github.com/arkajojo/pbigen/blob/main/docs/themes.md)** · **[Testing](https://github.com/arkajojo/pbigen/blob/main/docs/testing.md)** · **[Publishing](https://github.com/arkajojo/pbigen/blob/main/docs/publishing.md)** | Theme JSON; self-serve verification; release runbook. |
+| **[CHANGELOG](https://github.com/arkajojo/pbigen/blob/main/CHANGELOG.md)** | Release history. |
 
 <br>
 
 ## FAQ
 
-**Does it read my data?** No. Sources introspect *metadata only* to design the report. Data is
-loaded by Power BI at refresh time, on your machine, through the generated connection.
+**Does it read my data?** No. Sources introspect metadata; Power BI loads data at refresh time on
+your machine. `--profile` computes aggregates (min/max/top values) and only if you ask.
 
-**Do I need an API key or an LLM?** No. The default design engine is deterministic and offline. An
-LLM is entirely optional.
+**Do I need an API key?** No. The deterministic engine builds the whole story offline. The AI
+pipeline is optional and works with any provider or a local model.
 
-**What exactly gets sent to an LLM if I enable one?** Only column names, canonical types and
-approximate distinct counts — never rows.
+**Will the template copy their charts?** No — it copies the *look* (canvas, chrome, fonts, styles,
+theme). The charts, KPIs and story are designed for your data. For an exact clone of a specific
+report, use Power BI Desktop's *Save as → .pbip*.
 
-**Can I use my company's Power BI theme?** Yes — pass the path to your theme JSON as `theme=`.
+**What if the model makes a mistake?** Everything it returns is validated against your schema;
+invalid fields are repaired or dropped, and if nothing valid remains pbigen falls back to the
+deterministic design — and says so.
 
-**Why PBIP/PBIR?** It's Microsoft's text-based, source-control-friendly report format, so the output
-is diffable, reviewable and CI-friendly rather than an opaque binary.
+**Why PBIP/PBIR?** Microsoft's text-based report format: diffable, reviewable, CI-friendly.
 
 <br>
 
 ## Contributing
 
-Contributions are very welcome. Set up a dev environment, run `ruff` and `pytest` (the suite runs
-fully offline), and open a focused PR. See **[CONTRIBUTING.md](https://github.com/arkajojo/pbigen/blob/main/CONTRIBUTING.md)**.
-
-<br>
+Contributions are very welcome. Run `ruff check src tests` and `pytest` (fully offline) and open a
+focused PR. See **[CONTRIBUTING.md](https://github.com/arkajojo/pbigen/blob/main/CONTRIBUTING.md)**.
 
 ## License
 

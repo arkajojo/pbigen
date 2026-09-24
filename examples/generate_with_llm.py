@@ -1,4 +1,4 @@
-"""Let a language model refine the dashboard design.
+"""Let the AI pipeline design the dashboard story (context -> objectives -> research -> storyboard -> critique).
 
 Run:  python examples/generate_with_llm.py
 Needs: pip install "pbigen[llm,lakehouse]"
@@ -24,12 +24,15 @@ def main() -> None:
         "parquet",
         source_config={"uri": "out/orders.parquet"},
         objective="Executive revenue overview with trends and regional drivers",
+        context="Online + store retailer; leadership wants profitable growth and repeat customers",
         model="gpt-4o-mini",          # any LiteLLM model id, hosted or local
+        research="builtin",           # "web" to let the research stage search the web
         theme="aurora",
         out_dir="out",
         name="OrdersLLM",
     )
     print(f"Designed by {result.model_name}: {result.n_pages} pages. Open: {result.pbip_path}")
+    print(f"Reasoning (context, KPI tree, storyline): {result.design_md}")
 
 
 if __name__ == "__main__":

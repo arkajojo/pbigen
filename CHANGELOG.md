@@ -3,6 +3,55 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project adheres to semantic versioning.
 
+## [0.4.0]
+
+A re-foundation around two ideas: **reuse the design of a report you already have**, and **design
+the story the way a senior BI consultant would**.
+
+### Added
+
+- **Template packs** — `pbigen template build <report.pbix|.pbit|.pbip> --out pack` compiles any
+  report into a reusable design: canvas size, page background/wallpaper, the content region, filter
+  rail and header measured from its richest page, chrome (sidebar panels, header bands, logos, page
+  navigators), the title font/size/colour, per-visual-type formatting (borders, radius, shadows,
+  title fonts, slicer look) with every data binding stripped, and its theme + images.
+  `pbigen template show pack` describes it. `generate --template` accepts a pack **or a report file
+  directly** (compiled on the fly). Reads legacy layouts and PBIR (incl. `.pbip` folders).
+- **The AI design pipeline** (`--model`) — five expert stages with a curated knowledge base (IBCS,
+  Few, Knaflic, Minto + 10 domain KPI playbooks) and strict JSON contracts: business context →
+  objectives & KPI tree (with data gaps) → research → storyboard → critique & repair. Progress is
+  printed per stage; any stage can fail without sinking the run.
+- **Web research** — `--research web` uses live web search on providers that support it
+  (OpenAI search models / GPT-5, Anthropic, Gemini) and cites sources; `builtin` (default) / `off`.
+- **Opt-in data profiling** — `--profile` sends aggregates (min/max/avg, date ranges, top 5 values
+  of low-cardinality text columns — never rows) to the model; implemented for BigQuery, every
+  SQLAlchemy warehouse and the DuckDB lakehouse adapter.
+- **Business context** — `--context` (text or a file path) and `--audience`.
+- **`DESIGN.md`** next to every report: context, column meanings, objectives, KPI tree, research
+  findings + sources, storyline with each visual's purpose, critique changes, gaps, caveats, stage log.
+- **KPI cards with period-over-period deltas** — "▲ 4.2% vs prior 30 days" in the card subtitle,
+  coloured green/red by whether the change is good for that KPI (`--compare-days`).
+- **"About this report" page** — purpose, objectives, story flow, KPI definitions with direction,
+  how to use, data source/grain/caveats/gaps.
+- **Monthly trend grain** — a calculated `<date> Month` column (import mode); trends never plot raw
+  timestamps.
+- **New visuals** — combo (columns + line), waterfall, treemap (with a second level); subtitles on
+  every visual; ranked (sorted) category charts; data labels.
+- **KPI-on-KPI formulas** — `divide`, `add`, `subtract`, `multiply` (e.g. `Net Revenue = Gross −
+  Discount`, `AOV = Revenue ÷ Orders`).
+- **12-column editorial layout** — KPI band, hero + side, halves, thirds, full width; pages grow
+  taller instead of squashing charts; layout works inside any template frame.
+- `pbigen doctor [--model]` — installed extras, model credentials and web-research availability.
+
+### Changed
+
+- The deterministic engine now tells a story too: KPIs named after the grain (`Orders`, `Trips`),
+  distinct-entity and efficiency KPIs, lower-is-better detection, a domain playbook, a question per
+  page, a subtitle per visual, donuts only for ≤ 6 slices (ranked bars otherwise).
+- `Model.design(schema, objective, request=None)` gains a `DesignRequest` (context, audience,
+  research mode, critique). Custom models written for 0.3 keep working.
+- `pbigen extract-template` is kept for compatibility; `template build` supersedes it.
+
 ## [0.3.4]
 
 ### Docs

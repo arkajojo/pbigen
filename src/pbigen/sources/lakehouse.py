@@ -26,7 +26,7 @@ from ..core.schema import (
     Column,
     Schema,
 )
-from .base import Source
+from .base import Source, profile_via_sql
 
 _FORMATS = {
     "parquet": "read_parquet('{uri}')",
@@ -123,6 +123,13 @@ class LakehouseSource(Source):
             return {c: int(row[i]) for i, c in enumerate(columns) if row[i] is not None}
         except Exception:  # noqa: BLE001
             return {}
+
+    def profile(self, schema: Schema) -> dict[str, dict]:
+        con = self._connect()
+        scan = self._scan()
+        return profile_via_sql(
+            lambda sql: con.execute(sql).fetchall(), scan, lambda c: f'"{c}"', schema,
+            lambda col: f"SELECT {col}, COUNT(*) AS n FROM {scan} GROUP BY {col} ORDER BY n DESC LIMIT 5")
 
     def power_query(self) -> str:
         if self.fmt == "parquet":

@@ -1,82 +1,102 @@
-# Deterministic vs LLM — what to expect
+# The design engines — deterministic and the AI pipeline
 
-pbigen has **two design brains**. The deterministic one runs by default; an LLM is optional. Both
-produce a complete, schema-valid, openable Power BI project — they differ in *how the design is
-decided*.
+pbigen has **two design engines**. Both produce a complete, story-structured, schema-valid Power BI
+project; they differ in how deeply they reason about the *business*.
 
-## Side by side
-
-| | **Deterministic** (default) | **LLM-refined** (`--model …`) |
+| | **Deterministic** (default) | **AI pipeline** (`--model …`) |
 |---|---|---|
-| Key / network needed | **None** | Provider key (or a local model) |
-| Cost | **Free** | Provider usage (or free if local) |
-| Reproducible | **Yes** — same inputs, same output | No — varies per call |
-| What leaves your machine | **Nothing** | **Metadata only** (column names, types, approx. distinct counts) — never rows |
-| Speed | Instant | A few seconds (one model call) |
-| How it decides | Rules over data shape (types + cardinality) | The model reshapes pages/visuals/measures from the metadata + your objective |
-| Safety net | n/a | Invalid references are dropped; on any error it **falls back to deterministic** |
+| Key / network | **None** | A provider key (or a local model) |
+| Cost | **Free** | Provider usage (free if local) |
+| Reproducible | **Yes** | No — varies per run |
+| What leaves your machine | **Nothing** | Metadata only (+ aggregate profiles with `--profile`) — never rows |
+| Time | Instant | ~1-3 minutes (five stages; web research is the slowest) |
+| Reasoning | Data shape + a keyword-matched domain playbook | Business context → objectives & KPI tree → research → storyboard → critique |
+| Safety net | n/a | Everything validated against the schema; falls back to deterministic if nothing valid remains |
 
-## What the deterministic engine does
+Both engines get the same finishing: **monthly trend grain**, **period-over-period deltas** on every KPI
+card, an **About this report** page with KPI definitions, and a **`DESIGN.md`** with the reasoning.
 
-It classifies every column (measure / date / category / geo / id), proposes measures, and lays out a
-narrative — **reliably and identically every time**:
+## The deterministic engine
 
-- A date/time column becomes a **range filter**, never a 500-value dropdown.
-- A breakdown with ≤ 8 categories → **donut**; more → **bar**.
-- **Numeric geo/id codes** (census tract, community area, lat/long) are **never summed** into
-  measures.
-- **Legends are cardinality-guarded** — a high-cardinality field becomes a bar category, not a
-  legend, so charts never error.
-- Pages flow **Executive Summary → Trends → Segmentation → Detail**, each led by KPI cards, with a
-  "how to use this report" note.
+Rules over the data shape — reliable and identical every time:
 
-Use it when you want **predictable, governed, regenerable** dashboards (CI, many tables, no keys).
+- **KPI set named after the grain** — `Trips`, `Orders` (not "Record Count"), distinct entities
+  (`Unique Customers`), totals, averages and an efficiency ratio (`Avg Revenue per Order`).
+  Cost-like measures are marked *lower is better* so their deltas turn red when they rise.
+- **Domain playbook** — columns are matched against built-in playbooks (mobility, commerce,
+  marketing, product, finance, operations, service, HR, SaaS, healthcare) for the north star and
+  objectives written into the About page and `DESIGN.md`.
+- **The story** — *Executive Summary* (KPI band, hero combo of volume vs value, main driver, ranked
+  top segments, efficiency) → *Trends Over Time* (monthly trends, mix over time) → *Drivers &
+  Segments* (ranked bars per dimension, treemap for long tails, scorecard matrix, volume-vs-value
+  scatter) → *Detailed Data* → *About this report*.
+- **Shape rules** — dates are range sliders; donuts only for ≤ 6 slices, otherwise ranked bars;
+  legends only for ≤ 6 values; ids and codes never summed or charted.
 
-```bash
-pbigen generate --source bigquery --set project=P dataset=D table=T \
-  --objective "Revenue and orders by region over time" --theme midnight --out out
-# CLI prints:  … using deterministic.
-```
-
-## What the LLM adds
-
-Pass `--model <id>` (any [LiteLLM](models.md) model — hosted or local) and the model **refines the
-design**: it may pick a more relevant lead metric, a different chart mix, better titles, or a
-narrative tuned to your objective. It sees **only metadata** — never row data.
+## The AI pipeline
 
 ```bash
-export OPENAI_API_KEY=sk-…                          # or ANTHROPIC_API_KEY / GEMINI_API_KEY / …
-pbigen generate --source bigquery --set project=P dataset=D table=T \
-  --objective "Where is revenue growing and where is it at risk?" \
-  --model gpt-4o-mini --theme midnight --out out
-# CLI prints:  … using litellm:gpt-4o-mini      (if it ran)
+pip install "pbigen[llm]"
+export OPENAI_API_KEY=...     # or ANTHROPIC_API_KEY / GEMINI_API_KEY, or a local model
+pbigen generate --source ... --model gpt-4o \
+  --context brief.md --audience "CFO and finance BPs" --research web --profile
 ```
 
-Use it when a table's "best story" isn't obvious from the shape alone and you want a smarter first
-draft. Everything the model returns is **validated against the live schema** first.
+Five stages, each an expert persona with the curated knowledge base and a strict JSON contract;
+every stage sees what the earlier ones concluded:
 
-## How to tell which one actually ran
+1. **Business context** (*principal analytics consultant*) — domain, business model, the grain
+   ("one row = one trip"), entities, processes, the audience and the decisions they make, what each
+   column means (units included), assumptions and caveats.
+2. **Objectives & KPI tree** (*head of strategy & analytics*) — the north star; 3-5 objectives, each
+   with the decisions it informs and prioritised questions; 6-12 KPIs with exact formulas, unit and
+   which direction is good; **gaps** the data cannot answer (and what data would).
+3. **Research** (*BI research analyst*) — how leading organisations in the domain measure and
+   visualise these objectives: findings with implications, standard KPIs, recommended views,
+   benchmarks, pitfalls. `--research web` uses live web search where the provider supports it
+   (OpenAI search models / GPT-5, Anthropic, Gemini) and cites sources; otherwise — or with
+   `--research builtin` (default) — it builds on the curated playbooks. `--research off` skips it.
+4. **Storyboard** (*IBCS-trained dashboard designer*) — 4-6 pages, one headline question per page,
+   the right chart per question, a subtitle on every visual, layout sizes, filters, and a coverage
+   map from objectives to visuals.
+5. **Critique & repair** (*the most demanding reviewer*) — coverage (every objective and KPI),
+   story flow, chart fitness, clarity, validity — then returns the corrected design.
+   Skip with `--no-critique`.
 
-The CLI summary (and `GenerateResult.model_name`) reports it honestly:
+### What the model can express
 
-- `using deterministic` — the rules engine.
-- `using litellm:<model>` — the LLM ran and its design was used.
-- `using deterministic (fallback — <model> did not run; check the model id / credentials)` — the
-  model couldn't be reached (bad key, rate limit, wrong id) and pbigen fell back. Your report is
-  still complete; fix the credentials and re-run to get the LLM design.
+KPIs: `agg` (SUM / AVERAGE / MIN / MAX / COUNT / DISTINCTCOUNT of a column), `ratio`
+(SUM(a) / SUM(b) of columns) and KPI-on-KPI `divide` / `add` / `subtract` / `multiply`
+(`Net Revenue = Gross Revenue − Total Discount`). Never raw DAX — pbigen writes the DAX.
 
-To compare, generate the same table twice (with and without `--model`) and open both — the LLM
-version's pages/visuals will differ.
+Visuals: card, line, area, column, bar, stacked column/bar, combo (columns + line), waterfall,
+donut, pie, treemap, scatter, matrix, table — each with title, subtitle, size (hero / side / half /
+third / full), ranking and data labels.
 
-## Privacy, both ways
+### Validation — the model can never break the report
 
-- **Deterministic:** nothing leaves your machine at all.
-- **LLM:** only **metadata** is sent — column names, canonical types, approximate distinct counts —
-  plus your objective string. **No rows.** For zero egress even with a model, run a **local** one
-  (`--model ollama/llama3`). See [Models](models.md).
+- unknown columns and undefined KPIs are dropped; KPI-on-KPI formulas are resolved in order,
+- donuts with > 6 slices become ranked bars; legends with > 6 values are removed,
+- trends on a timestamp are moved to the monthly grain,
+- stacked charts without a series become plain charts; combos without a line become columns,
+- high-cardinality slicers are dropped; model-made "About" pages are replaced by pbigen's own.
 
-## Recommendation
+If a stage fails it is recorded and the run continues; if no valid design emerges, the
+deterministic design is used, and the CLI says `deterministic (fallback — …)`.
 
-Start **deterministic** — it's free, instant, reproducible, and already produces clean, executive
-dashboards. Reach for an **LLM** when you want a sharper narrative on a specific question, and prefer
-a **local model** if data-governance rules forbid any external calls.
+### What is sent
+
+Column names, canonical types, approximate distinct counts, your objective / context / audience
+text. With `--profile`: min / max / average of numeric columns, date ranges, and the top 5 values
+of low-cardinality text columns. **Never rows.** For zero egress, use a local model
+(`--model ollama/llama3.1`).
+
+## Which to use
+
+- **Deterministic** for CI, many tables, governed regeneration, or no keys.
+- **AI pipeline** when the story matters — a new domain, an executive audience, a specific question.
+  Give it a `--context` brief: two sentences about the business and what leadership cares about
+  make a visible difference. Frontier models (GPT-4o/5, Claude Sonnet/Opus, Gemini 2.5 Pro) tell the
+  best stories.
+
+Read the generated **`DESIGN.md`** either way — it is the fastest way to review what was built and why.

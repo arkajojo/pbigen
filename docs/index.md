@@ -8,19 +8,19 @@ hide:
 
 ![pbigen](https://raw.githubusercontent.com/arkajojo/pbigen/main/assets/logo.svg)
 
-<div class="headline">World-class Power BI dashboards, generated from any data source.</div>
+<div class="headline">Your report's design. Your data's story. Generated.</div>
 
-<div class="tagline">Point pbigen at a table. It reads the schema, reasons about the shape of the
-data, and writes a clean, ready-to-open Power BI project — deterministically, or refined by any LLM.
-Free, local, open source.</div>
+<div class="tagline">Give pbigen any <code>.pbix</code> you like and a table. It reuses that report's
+design, reasons like a senior BI consultant — business context, objectives, KPI tree, research,
+storyboard, self-critique — and writes a ready-to-open Power BI project. Free, local, open source.</div>
 
 <div class="cta" markdown>
 [Get started](recipes.md){ .md-button .md-button--primary }
-[Why pbigen?](why.md){ .md-button }
-[Browse the recipes](recipes.md){ .md-button }
+[Template packs](templates.md){ .md-button }
+[The AI pipeline](deterministic-vs-llm.md){ .md-button }
 </div>
 
-<div class="pills">16 data sources · deterministic or any LLM · MIT · no cloud capacity</div>
+<div class="pills">any .pbix as the design · 5-stage AI story pipeline · 16 data sources · MIT</div>
 
 </div>
 
@@ -31,7 +31,7 @@ Free, local, open source.</div>
 ```bash
 pip install pbigen                 # core (dependency-light)
 pip install "pbigen[bigquery]"     # + one source driver: bigquery, snowflake, lakehouse, …
-pip install "pbigen[llm]"          # + optional LLM-refined design
+pip install "pbigen[llm]"          # + the AI design pipeline (any LLM, hosted or local)
 ```
 
 ## 60 seconds, no cloud account
@@ -62,14 +62,17 @@ Open `out/Orders/Orders.pbip` in Power BI Desktop (enable the PBIR preview once 
   Athena, a Parquet/Iceberg/Delta lake on GCS/S3/ADLS, or a Cube semantic layer.
   [Sources & auth →](sources.md)
 
-- :material-brain: **Deterministic or LLM design**
-  A reproducible, cardinality-aware engine by default (no key, no network); optionally let any LLM
-  refine it — metadata only. [Deterministic vs LLM →](deterministic-vs-llm.md)
+- :material-brain: **Thinks like a BI consultant**
+  Business context → objectives & KPI tree → research (live web search) → storyboard → critique.
+  Or a reproducible deterministic storyboard with no key at all. [The AI pipeline →](deterministic-vs-llm.md)
 
-- :material-palette-swatch: **Match any house style**
-  Built-in executive themes, bring-your-own theme JSON, a logo, left/right nav — or
-  **extract the theme + logo from a shared `.pbix`** and pour your data into that shell.
-  [Themes, logo & shell →](themes.md)
+- :material-palette-swatch: **Wears your design**
+  `pbigen template build report.pbix` captures canvas, background, sidebar, logo, title font, theme
+  and per-visual formatting; every new dashboard lands inside it. [Template packs →](templates.md)
+
+- :material-chart-timeline-variant: **A story, not a chart dump**
+  A question per page, a subtitle per visual, KPI cards with green/red period deltas, ranked bars,
+  monthly trends, an About page with KPI definitions and a `DESIGN.md` with the reasoning.
 
 - :material-cog-play: **Controls that matter**
   Import vs DirectQuery, `row_limit` sampling for huge tables, and a clean Python API + CLI.

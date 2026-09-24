@@ -7,7 +7,7 @@ Power BI Desktop (with the PBIR preview enabled — see [docs/sources.md](../doc
 |------|---------------|
 | `generate_from_parquet.py` | End-to-end, offline — builds a sample Parquet file and generates from it. Needs `pbigen[lakehouse]`. |
 | `generate_from_bigquery.py` | Generating from a warehouse table. Needs `pbigen[bigquery]` and credentials. |
-| `generate_with_llm.py` | Letting a language model refine the design. Needs `pbigen[llm]` and a model/key. |
+| `generate_with_llm.py` | The AI design pipeline (context → objectives → research → storyboard → critique). Needs `pbigen[llm]` and a model/key. |
 
 ```bash
 pip install "pbigen[lakehouse]"

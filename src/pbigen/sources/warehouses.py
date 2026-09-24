@@ -99,6 +99,9 @@ class SynapseSource(SqlSource):
         url = f"mssql+pyodbc://{user}:{password}@{self.server}/{self.database}?driver={drv}&Encrypt=yes"
         super().__init__(url, table, schema=schema, quote="[")  # T-SQL uses [brackets]
 
+    def _top_values_sql(self, col: str, qual: str) -> str:  # T-SQL has TOP, not LIMIT
+        return f"SELECT TOP 5 {col}, COUNT(*) AS n FROM {qual} GROUP BY {col} ORDER BY n DESC"
+
     def _q(self, ident: str) -> str:  # override: bracket-quoting
         return f"[{ident}]"
 
